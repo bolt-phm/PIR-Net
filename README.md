@@ -7,6 +7,8 @@
 
 > **Official Repository:** https://github.com/bolt-phm/PIR-Net
 
+---
+
 ## 📖 Introduction
 PIR-Net is a physics-informed deep learning framework for **ultra-high frequency (1 MHz) bolt loosening detection** in industrial prognostics and health management (PHM) systems.
 
@@ -30,7 +32,7 @@ This repository includes a standalone **Windows desktop application** developed 
 Uniform downsampling introduces aliasing artifacts that obscure short-duration impact responses in ultra-high frequency vibration signals. To mitigate this effect, PIR-Net adopts a physics-driven adaptive pooling strategy guided by bolt impact transients and energy redistribution:
 
 $$
-S_{\text{out}} = 0.7 \cdot \max\left(|S_{\text{in}}|\right) + 0.3 \cdot \operatorname{mean}\left(|S_{\text{in}}|\right)
+S_{\text{out}} = 0.7 \cdot \max\left(|S_{\text{in}}|\right) + 0.3 \cdot mean\left(|S_{\text{in}}|\right)
 $$
 
 This hybrid formulation emphasizes high-amplitude transient responses while retaining global energy information. As a result, high-frequency impact signatures ($P_{\max}$) are preserved alongside long-term energy trends ($P_{\text{energy}}$), effectively suppressing aliasing-induced degradation.
@@ -50,7 +52,7 @@ This representation alleviates the phase information loss inherent in standard S
 PIR-Net employs an **asymmetric cross-modal attention** mechanism that prioritizes stable spectral representations while selectively compensating them with temporal details:
 
 $$
-\operatorname{Attention}(Q, K, V) = \operatorname{softmax}\left( \frac{QK^{\top}}{\sqrt{d_k}} \right)V
+Attention(Q, K, V) = softmax\left( \frac{QK^{\top}}{\sqrt{d_k}} \right)V
 $$
 
 The query $Q$ is derived from spectral-domain features, whereas the key–value pairs $(K, V)$ are constructed from concatenated spectral and temporal embeddings. This design enhances robustness under high-noise conditions and provides redundancy against unreliable time-domain measurements.
@@ -74,13 +76,13 @@ pip install torch torchvision numpy scipy opencv-python scikit-learn matplotlib 
 
 ### Dataset Preparation
 ```bash
-unzip data.zip -d ./data_set
+unzip data.zip -d ./
 ```
 
 Update `config.json` accordingly:
 ```json
 "data": {
-  "data_dir": "./data_set",
+  "data_dir": "./data",
   "use_offline": true
 }
 ```
