@@ -1,0 +1,163 @@
+{
+  "project": {
+    "name": "BoltLooseningDetection",
+    "version": "19.0-Elite-CombinedLoss",
+    "description": "6-Class Fusion. Global Norm + Combined Loss (LS 0.8 / Focal 0.2)."
+  },
+  "data": {
+    "//_comment_scale": "【重要】请确保此数值是通过 get_max_amp.py 扫描数据集得到的全局最大振幅",
+    "global_scale": 276.0,
+    
+    "data_dir": "/root/autodl-tmp/12.26/data",
+    "generalization_dir": "./data_set/",
+    "offline_dir": "./data_offline",
+    "use_offline": false,
+    "data_format": ".npy",
+    "sr": 1000000,
+    
+    "case_ids": [
+      "SevereLoose", 
+      "Loose", 
+      "Critical", 
+      "Transition", 
+      "Secure", 
+      "OverTight"
+    ],
+    
+    "num_classes": 6,
+    
+    "fusion_map": {
+      "case1": 0, "case2": 0, "case3": 0,
+      "case4": 1, "case5": 1,
+      "case6": 2, "case7": 2, "case8": 2,
+      "case9": 3, "case10": 3, "case11": 3,
+      "case12": 4, "case13": 4, "case14": 4,
+      "case15": 5, "case16": 5
+    },
+    
+    "scales": [1.0],
+    
+    "dual_multiscale": {
+      "envelopes": [8192],
+      "slices": [8192]
+    },
+
+    "step_ratio": 0.1, 
+    "split_ratio": [0.7, 0.15, 0.15],
+    
+    "image_size": [224, 320],
+    "batch_size": 140,
+    "num_workers": 12,
+    
+    "hop_length": 64,
+    "signal_column_index": 0,
+    "signal_mean": 0.0,
+    "signal_std": 1.0,
+
+    "use_whitelist": true,
+    "whitelist": [
+      "case1_run01.npy", "case1_run02.npy", "case1_run03.npy", "case1_run04.npy", "case1_run05.npy",
+      "case2_run01.npy", "case2_run02.npy", "case2_run03.npy", "case2_run04.npy", "case2_run05.npy",
+      "case3_run02.npy", "case3_run03.npy", "case3_run04.npy",
+      
+      "case4_run01.npy","case4_run02.npy","case4_run03.npy", "case4_run04.npy",
+      "case5_run01.npy", "case5_run02.npy", "case5_run03.npy", "case5_run04.npy", "case5_run05.npy",
+      
+      "case6_run02.npy", "case6_run04.npy", "case6_run05.npy",
+      "case7_run02.npy", 
+      "case8_run02.npy", "case8_run04.npy", "case8_run05.npy",
+      
+      "case9_run01.npy", "case9_run02.npy", "case9_run04.npy", "case9_run05.npy",
+      "case10_run01.npy", "case10_run02.npy", "case10_run04.npy", "case10_run05.npy",
+      "case11_run01.npy", "case11_run02.npy", "case11_run05.npy",
+      
+      "case12_run01.npy", "case12_run02.npy", "case12_run05.npy",
+      "case13_run01.npy", "case13_run02.npy", "case13_run03.npy", "case13_run04.npy",
+      "case14_run01.npy", "case14_run03.npy",
+      
+      "case15_run02.npy", "case15_run03.npy", "case15_run04.npy", "case15_run05.npy",
+      "case16_run02.npy", "case16_run03.npy", "case16_run04.npy", "case16_run05.npy"
+    ]
+  },
+  "modality": {
+    "pseudo_image_mode": 1,
+    "image_model": {
+      "type": 1,
+      "in_channels": 5,
+      "out_dim": 256,
+      "pretrained": true
+    },
+    "signal_model": {
+      "type": 2,
+      "in_channels": 1,
+      "out_dim": 256,
+      "embed_dim": 256,
+      "nhead": 8,
+      "num_layers": 2,
+      "dropout": 0.5
+    },
+    "fusion": {
+      "type": 2,
+      "dropout": 0.5,
+      "num_heads": 8
+    }
+  },
+  "augment": {
+    "signal": {
+      "use_augment": true,
+      "params": {
+        "amplitude_scale_range": [0.8, 1.2],
+        "amplitude_scale_p": 0.5,
+        "noise_amp": 0.01,
+        "noise_p": 0.5,
+        "random_cutout_p": 0.3
+      }
+    },
+    "image": {
+      "use_augment": true,
+      "brightness": 0.2,
+      "contrast": 0.2,
+      "color_jitter_p": 0.4,
+      "h_flip_p": 0.0,
+      "rotate_range": [-5, 5],
+      "rotate_p": 0.2,
+      "erasing_area_range": [0.02, 0.1],
+      "erasing_ratio_range": [0.3, 3.3],
+      "random_erasing_p": 0.3
+    }
+  },
+  "train": {
+    "seed": 256,
+    "device": "cuda",
+    "epochs": 200,
+    "learning_rate": 0.0002,
+    "weight_decay": 0.001,
+    "optimizer": "AdamW",
+    "accumulation_steps": 1,
+    
+    "mixup_alpha": 0.4,
+    
+    "//_comment_loss": "=== 组合损失配置 ===",
+    "loss_type": "combined",
+    "label_smoothing_factor": 0.1,
+    "combined_loss_ratio": 0.8,
+    
+    "class_weights": [2, 0.8, 1.0, 1.0, 1, 1],
+    
+    "warmup_epochs": 25,
+    
+    "resume": false,
+    "scheduler": {
+      "use_scheduler": true,
+      "type": "CosineAnnealingWarmRestarts",
+      "T_0": 20,
+      "T_mult": 2,
+      "eta_min": 1e-6
+    },
+    "early_stopping_patience": 60,
+    "log_dir": "./logs",
+    "model_dir": "./checkpoints",
+    "best_model_name": "best_model_combined.pth",
+    "visualization_tool": "tensorboard"
+  }
+}

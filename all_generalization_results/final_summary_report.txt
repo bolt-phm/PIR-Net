@@ -1,0 +1,137 @@
+==================================================
+       Multi-Experiment Generalization Report
+==================================================
+
+Experiment ID: 022
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9072
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9425    0.9761    0.9590      3679
+       Loose     0.9688    0.8783    0.9213      2547
+    Critical     0.8062    0.9914    0.8893      1981
+  Transition     0.9888    0.8236    0.8987      3113
+      Secure     0.9028    0.8316    0.8657      2547
+   OverTight     0.8191    0.9541    0.8815      2264
+
+    accuracy                         0.9072     16131
+   macro avg     0.9047    0.9092    0.9026     16131
+weighted avg     0.9153    0.9072    0.9072     16131
+
+==================================================
+
+Experiment ID: 122
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9477
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9890    0.9535    0.9709      3679
+       Loose     0.9718    0.9352    0.9532      2547
+    Critical     0.9297    0.9414    0.9355      1981
+  Transition     0.9588    0.9942    0.9762      3113
+      Secure     0.8878    0.9285    0.9077      2547
+   OverTight     0.9271    0.9152    0.9211      2264
+
+    accuracy                         0.9477     16131
+   macro avg     0.9440    0.9447    0.9441     16131
+weighted avg     0.9485    0.9477    0.9478     16131
+
+==================================================
+
+Experiment ID: 202
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9481
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9977    0.9500    0.9733      3679
+       Loose     0.9644    0.9348    0.9494      2547
+    Critical     0.9241    0.9591    0.9413      1981
+  Transition     0.9707    0.9888    0.9796      3113
+      Secure     0.9009    0.9101    0.9055      2547
+   OverTight     0.8991    0.9368    0.9176      2264
+
+    accuracy                         0.9481     16131
+   macro avg     0.9428    0.9466    0.9444     16131
+weighted avg     0.9491    0.9481    0.9483     16131
+
+==================================================
+
+Experiment ID: 212
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9516
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9997    0.9473    0.9728      3679
+       Loose     0.9596    0.9427    0.9511      2547
+    Critical     0.9146    0.9844    0.9482      1981
+  Transition     0.9836    0.9814    0.9825      3113
+      Secure     0.9142    0.9121    0.9131      2547
+   OverTight     0.9036    0.9435    0.9231      2264
+
+    accuracy                         0.9516     16131
+   macro avg     0.9459    0.9519    0.9485     16131
+weighted avg     0.9528    0.9516    0.9518     16131
+
+==================================================
+
+Experiment ID: 220
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9513
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9983    0.9647    0.9812      3679
+       Loose     0.9700    0.9399    0.9547      2547
+    Critical     0.9187    0.9647    0.9411      1981
+  Transition     0.9739    0.9836    0.9787      3113
+      Secure     0.9132    0.9128    0.9130      2547
+   OverTight     0.9003    0.9298    0.9148      2264
+
+    accuracy                         0.9513     16131
+   macro avg     0.9458    0.9492    0.9473     16131
+weighted avg     0.9522    0.9513    0.9515     16131
+
+==================================================
+
+Experiment ID: 221
+Weight Path: checkpoints/best_model_combined.pth
+Accuracy: 0.9457
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9997    0.9473    0.9728      3679
+       Loose     0.9695    0.9223    0.9453      2547
+    Critical     0.8950    0.9854    0.9380      1981
+  Transition     0.9898    0.9676    0.9786      3113
+      Secure     0.8719    0.9352    0.9024      2547
+   OverTight     0.9157    0.9165    0.9161      2264
+
+    accuracy                         0.9457     16131
+   macro avg     0.9403    0.9457    0.9422     16131
+weighted avg     0.9482    0.9457    0.9462     16131
+
+==================================================
+
+Experiment ID: 222
+Weight Path: checkpoints/best_model_combined224_360_96.pth
+Accuracy: 0.9604
+------------------------------
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9986    0.9530    0.9752      3679
+       Loose     0.9798    0.9906    0.9852      2547
+    Critical     0.9858    0.9818    0.9838      1981
+  Transition     0.9878    0.9846    0.9862      3113
+      Secure     0.8547    0.9564    0.9027      2547
+   OverTight     0.9523    0.8913    0.9208      2264
+
+    accuracy                         0.9604     16131
+   macro avg     0.9598    0.9596    0.9590     16131
+weighted avg     0.9628    0.9604    0.9609     16131
+
+==================================================
+
