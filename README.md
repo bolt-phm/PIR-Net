@@ -103,13 +103,13 @@ The dataset is hosted via Git LFS. You can download it directly from the **Relea
 1. **Download** `data.zip` from the [Latest Release](https://github.com/bolt-phm/PIR-Net/releases).
 2. **Unzip** the file into the project root directory.
 ```bash
-unzip data.zip -d ./data_set
-# Ensure the folder structure is: ./data_set/SevereLoose, ./data_set/Loose, etc.
+unzip data.zip -d ./
+# Ensure the folder structure is: ./data/SevereLoose, ./data/Loose, etc.
 ```
 3. **Verify Config**: Open `config.json` and check:
 ```json
 "data": {
-  "data_dir": "./data_set",
+  "data_dir": "./data",
   "use_offline": true
 }
 ```
