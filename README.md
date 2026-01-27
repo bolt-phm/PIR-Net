@@ -1,85 +1,112 @@
 # PIR-Net: Physics-Informed Resampling and Asymmetric Fusion Network
 
-[![PyTorch](https://img.shields.io/badge/PyTorch-1.13%2B-orange)](https://pytorch.org/)
-[![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Paper](https://img.shields.io/badge/Paper-Neurocomputing-green)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-1.13%2B-orange)](https://pytorch.org/) 
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/) 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
+[![Paper](https://img.shields.io/badge/Paper-Neurocomputing-green)]() 
 
 > **Official Repository:** https://github.com/bolt-phm/PIR-Net
 
 ---
 
 ## 📖 Introduction
-PIR-Net is a physics-informed deep learning framework for **ultra-high frequency (1 MHz) bolt loosening detection** in industrial prognostics and health management (PHM) systems.
+PIR-Net is a state-of-the-art physics-informed deep learning framework designed specifically for **ultra-high frequency (1 MHz) bolt loosening detection** in industrial Prognostics and Health Management (PHM). 
 
-Conventional vibration-based pipelines suffer from severe information loss when aggressive downsampling is applied to ultra-high frequency signals. PIR-Net addresses this limitation by explicitly embedding **bolt impact dynamics** into both the resampling process and the feature fusion strategy.
+In industrial environments, standard downsampling techniques (e.g., linear pooling) applied to 1 MHz signals often result in the aliasing or loss of micro-second duration impact transients. PIR-Net overcomes this by embedding **bolt impact dynamics** directly into the resampling layer and employing a heterogeneous feature fusion strategy.
 
-By integrating a **Physics-Informed Adaptive Resampling (PIAR)** module with an **Asymmetric Cross-Modal Attention (ACMA)** mechanism, PIR-Net achieves up to **150:1 temporal compression** while preserving micro-transient signatures (1–10 µs) that are critical for early-stage loosening identification. The proposed framework attains **95.00% classification accuracy** on a six-class bolt loosening dataset under varying noise conditions.
+**Key Achievements:**
+* **150:1 Compression:** Integrates a **Physics-Informed Adaptive Resampling (PIAR)** module to compress 1 MHz signals while preserving 1–10 µs micro-transients.
+* **Noise Robustness:** Utilizes **Asymmetric Cross-Modal Attention (ACMA)** to fuse time-domain and frequency-domain features, achieving superior performance in low SNR environments.
+* **High Accuracy:** Validated on a six-class benchmark dataset, achieving **95.00% classification accuracy** with an inference speed exceeding **66 FPS**.
 
 ## 🖥️ Industrial Deployment Software (BoltDetectionGUI)
-This repository includes a standalone **Windows desktop application** developed in **C# (.NET 10.0)** for real-time industrial deployment and operator-level interaction.
+To bridge the gap between academic research and industrial application, this repository includes **BoltDetectionGUI**, a professional Windows desktop application developed in **C# (.NET 10.0)**.
 
-### Key Capabilities
-- **🔌 Real-Time USB Inference:** Direct connection to DAQ hardware, enabling millisecond-level end-to-end inference latency with live prediction confidence visualization.
-- **🎲 Ensemble-Based Inference:** Supports soft-voting ensemble strategies by loading multiple trained `.pth` model weights to improve robustness under severe noise conditions.
-- **📊 Batch Generalization Evaluation:** Integrated batch testing mode with automatic generation of confusion matrices and quantitative performance reports.
-- **⚙️ Configurable Training and Architecture Parameters:** Full control over training hyperparameters and network configurations via a graphical user interface.
+### Core Capabilities
+#### 1. Real-Time USB Inference
+The software implements a high-performance asynchronous I/O layer to communicate with USB Data Acquisition (DAQ) hardware. It enables **millisecond-level end-to-end latency**, visualizing the raw signal waveform and prediction confidence scores in real-time.
 
-> Source code is located in the `BoltDetectionGUI/` directory.
+#### 2. Soft-Voting Ensemble Engine
+Designed for harsh industrial environments, the GUI supports an **ensemble inference mode**. Users can load multiple trained model weights (`.pth`). The system applies a soft-voting mechanism to aggregate probability distributions, reducing false alarms caused by random noise.
+
+#### 3. Automated Batch Testing
+Includes a built-in generalization testing module. Users can import large-scale historical datasets, and the software will automatically generate Confusion Matrices, Precision/Recall Reports, and Failed Case Logs.
+
+> **Note:** The C# source code is located in the `BoltDetectionGUI/` directory.
 
 ## 🧠 Physics-Informed Methodology
-### 4.1 Physics-Informed Adaptive Resampling
-Uniform downsampling introduces aliasing artifacts that obscure short-duration impact responses in ultra-high frequency vibration signals. To mitigate this effect, PIR-Net adopts a physics-driven adaptive pooling strategy guided by bolt impact transients and energy redistribution:
+### 4.1 Physics-Informed Adaptive Resampling (PIAR)
+Uniform downsampling introduces aliasing artifacts that obscure short-duration impact responses. PIR-Net adopts a physics-driven adaptive pooling strategy. The resampling weights are governed by the **maximum impact amplitude** ($P_{\max}$) and the **local energy density** ($P_{\text{energy}}$).
+
+The downsampled signal $x_{ds}[i]$ is calculated as:
 
 $$
-S_{\text{out}} = 0.7 \cdot \max\left(|S_{\text{in}}|\right) + 0.3 \cdot mean\left(|S_{\text{in}}|\right)
+x_{ds}[i] = \alpha \cdot \mathcal{P}_{\max}(w_i) + (1-\alpha) \cdot \mathcal{P}_{\text{energy}}(w_i)
 $$
 
-This hybrid formulation emphasizes high-amplitude transient responses while retaining global energy information. As a result, high-frequency impact signatures ($P_{\max}$) are preserved alongside long-term energy trends ($P_{\text{energy}}$), effectively suppressing aliasing-induced degradation.
+Where $\alpha=0.7$ is the balancing factor. The energy term is calculated as the **Root Mean Square (RMS)** to represent the vibrational energy within the window $w_i$:
+
+$$
+\mathcal{P}_{\text{energy}}(w_i) = \sqrt{\frac{1}{N} \sum_{j \in w_i} x_j^2}
+$$
+
+This hybrid formulation ensures that high-frequency impact signatures are preserved ($P_{\max}$) while retaining global energy trends ($P_{\text{energy}}$).
 
 ### 4.2 Heterogeneous Gradient–Spectral Representation
-To characterize intermediate loosening states (e.g., 50–70% residual torque), PIR-Net constructs a **five-channel heterogeneous representation** that jointly encodes spectral content and its local variations:
+To characterize intermediate loosening states (e.g., 50–70% residual torque), PIR-Net constructs a **five-channel heterogeneous tensor**:
+* **Ch 1: Log-Spectrogram ($S_{db}$):** Captures the fundamental time-frequency distribution.
+* **Ch 2: Temporal Gradient ($\nabla_t S_{db}$):** Highlights the onset of transient impacts.
+* **Ch 3: Frequency Gradient ($\nabla_f S_{db}$):** Detects resonance frequency shifts caused by stiffness degradation.
+* **Ch 4: Energy Map ($S^2$):** Emphasizes high-energy regions.
+* **Ch 5: Waveform Morphology:** A time-domain embedding that preserves phase information lost in STFT.
 
-- **Channel 1:** Log-scaled spectrogram ($S_{\text{db}}$)
-- **Channel 2:** Temporal gradient ($\nabla_t S_{\text{db}}$), highlighting transient onsets
-- **Channel 3:** Frequency gradient ($\nabla_f S_{\text{db}}$), capturing resonance migration
-- **Channel 4:** Energy map ($S^2$)
-- **Channel 5:** Time-domain embedding (raw waveform morphology)
-
-This representation alleviates the phase information loss inherent in standard STFT-based pipelines and improves sensitivity to subtle structural state transitions.
-
-### 4.3 Asymmetric Cross-Modal Attention Fusion
-PIR-Net employs an **asymmetric cross-modal attention** mechanism that prioritizes stable spectral representations while selectively compensating them with temporal details:
+### 4.3 Asymmetric Cross-Modal Attention (ACMA)
+PIR-Net employs a novel asymmetric fusion mechanism. We use the spectral features as the **Query ($Q$)** to retrieve complementary details from the time-domain **Key ($K$)** and **Value ($V$)** pairs:
 
 $$
-Attention(Q, K, V) = softmax\left( \frac{QK^{\top}}{\sqrt{d_k}} \right)V
+\text{Attention}(Q_f, K_{tf}, V_{tf}) = \text{softmax}\left( \frac{Q_f K_{tf}^{\top}}{\sqrt{d_k}} \right) V_{tf}
 $$
 
-The query $Q$ is derived from spectral-domain features, whereas the key–value pairs $(K, V)$ are constructed from concatenated spectral and temporal embeddings. This design enhances robustness under high-noise conditions and provides redundancy against unreliable time-domain measurements.
+## 🚀 Performance Benchmarks
+The framework was evaluated on the **Bolt Loosening Dataset (Exp. 222)**, covering states from **Severe Loose** to **Over Tight**.
 
-## 🚀 Performance Evaluation
-The proposed framework is evaluated on a six-class bolt loosening dataset ranging from **Severe Loose** to **Over Tight** conditions.
-
-| Metric | Result | Description |
+| Metric | Performance | Notes |
 | :--- | :--- | :--- |
-| **Accuracy** | **95.00%** | Test set performance (Exp. 222) |
-| **Inference Speed** | **> 66 FPS** | ~15 ms end-to-end latency |
-| **Safety Precision** | **99.80%** | Near-zero false alarms for critical loose states |
-| **Noise Robustness** | **+56.7%** | Relative improvement at 0 dB SNR |
+| **Accuracy** | **95.00%** | State-of-the-art on test set |
+| **Inference Speed** | **> 66 FPS** | ~15.0ms Latency (End-to-End) |
+| **Safety Precision** | **99.80%** | Near-zero false alarms for dangerous states |
+| **Noise Robustness** | **+56.7%** | Relative improvement at 0 dB SNR vs. ResNet |
 
-## 📦 Installation and Data Preparation
+## 📦 Detailed Deployment Guide
 
-### Environment Requirements
+### Step 1: Environment Setup (Anaconda)
+We recommend using Anaconda to manage dependencies. Open your terminal/command prompt:
 ```bash
-pip install torch torchvision numpy scipy opencv-python scikit-learn matplotlib seaborn tqdm thop tensorboard
+# 1. Create a new environment (Python 3.8+ recommended)
+conda create -n pirnet python=3.9
+
+# 2. Activate the environment
+conda activate pirnet
+
+# 3. Install PyTorch (Adjust CUDA version based on your GPU)
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 ```
 
-### Dataset Preparation
+### Step 2: Install Dependencies
+Install the remaining required Python libraries:
+```bash
+pip install numpy scipy opencv-python scikit-learn matplotlib seaborn tqdm thop tensorboard
+```
+
+### Step 3: Dataset Preparation
+The dataset is hosted via Git LFS. You can download it directly from the **Releases** page or clone it.
+1. **Download** `data.zip` from the [Latest Release](https://github.com/bolt-phm/PIR-Net/releases).
+2. **Unzip** the file into the project root directory.
 ```bash
 unzip data.zip -d ./data_set
+# Ensure the folder structure is: ./data_set/SevereLoose, ./data_set/Loose, etc.
 ```
-
-Update `config.json` accordingly:
+3. **Verify Config**: Open `config.json` and check:
 ```json
 "data": {
   "data_dir": "./data_set",
@@ -87,43 +114,39 @@ Update `config.json` accordingly:
 }
 ```
 
-## 🛠️ Usage
-
-### Model Training
+### Step 4: Running the Model
+**To Train the Model:**
 ```bash
 python train.py
-```
-- **Loss Function:** Label Smoothing + Focal Loss
-- **Logging:** TensorBoard logs saved in `tf-logs/`
-
-### Noise Robustness Evaluation
-```bash
-export FORCE_SNR=0
-python generalization_all.py
+# Logs will be saved to tf-logs/ and checkpoints to checkpoints/
 ```
 
-### Computational Efficiency Profiling
+**To Evaluate Performance (Batch Test):**
 ```bash
-python measure_efficiency.py
+python generalization.py
 ```
+
+### Step 5: Running the GUI Software
+1. Go to the [Releases Page](https://github.com/bolt-phm/PIR-Net/releases).
+2. Download `BoltDetectionGUI_v1.0.zip`.
+3. Unzip and run `BoltDetectionGUI.exe` directly (No installation required).
+4. **Note:** Ensure you have `.NET Desktop Runtime 10.0` (or latest) installed if it doesn't start.
 
 ## 📂 Project Structure
 ```text
 PIR-Net/
-├── BoltDetectionGUI/        # Industrial desktop application (C#)
-├── config.json             # Global configuration
-├── data.zip                # Dataset archive
-├── dataset.py              # Physics-informed resampling and STFT
-├── model.py                # Multi-modal network architecture
-├── train.py                # Training pipeline
-├── generalization.py       # Standard inference
-├── generalization_all.py   # Noise robustness evaluation
-├── run_batch_kgr.py        # Batch experiment runner
-└── measure_efficiency.py   # FLOPs and latency profiling
+├── BoltDetectionGUI/        # C# Source Code (.NET 10.0)
+├── config.json              # Hyperparameter Configuration
+├── data.zip                 # 1 MHz Dataset (Git LFS)
+├── dataset.py               # PIAR Resampling & Preprocessing
+├── model.py                 # PIR-Net Architecture (ACMA Fusion)
+├── train.py                 # Training Loop
+├── generalization.py        # Inference Engine
+└── measure_efficiency.py    # Profiling Tools
 ```
 
 ## 📝 Citation
-If you use this repository or methodology in academic work, please cite:
+If you find this work useful in your research, please consider citing:
 ```bibtex
 @article{PIRNet2026,
   title   = {PIR-Net: Physics-Informed Resampling and Asymmetric Fusion Network for Ultra-High Frequency Bolt Loosening Detection},
