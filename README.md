@@ -9,7 +9,7 @@
 
 ---
 
-## 📖 Introduction
+## Introduction
 PIR-Net is a state-of-the-art physics-informed deep learning framework designed specifically for **ultra-high frequency (1 MHz) bolt loosening detection** in industrial Prognostics and Health Management (PHM). 
 
 In industrial environments, standard downsampling techniques (e.g., linear pooling) applied to 1 MHz signals often result in the aliasing or loss of micro-second duration impact transients. PIR-Net overcomes this by embedding **bolt impact dynamics** directly into the resampling layer and employing a heterogeneous feature fusion strategy.
@@ -19,7 +19,7 @@ In industrial environments, standard downsampling techniques (e.g., linear pooli
 * **Noise Robustness:** Utilizes **Asymmetric Cross-Modal Attention (ACMA)** to fuse time-domain and frequency-domain features, achieving superior performance in low SNR environments.
 * **High Accuracy:** Validated on a six-class benchmark dataset, achieving **95.00% classification accuracy** with an inference speed exceeding **66 FPS**.
 
-## 🖥️ Industrial Deployment Software (BoltDetectionGUI)
+## Industrial Deployment Software (BoltDetectionGUI)
 To bridge the gap between academic research and industrial application, this repository includes **BoltDetectionGUI**, a professional Windows desktop application developed in **C# (.NET 10.0)**.
 
 ### Core Capabilities
@@ -34,7 +34,7 @@ Includes a built-in generalization testing module. Users can import large-scale 
 
 > **Note:** The C# source code is located in the `BoltDetectionGUI/` directory.
 
-## 🧠 Physics-Informed Methodology
+## Physics-Informed Methodology
 ### 4.1 Physics-Informed Adaptive Resampling (PIAR)
 Uniform downsampling introduces aliasing artifacts that obscure short-duration impact responses. PIR-Net adopts a physics-driven adaptive pooling strategy. The resampling weights are governed by the **maximum impact amplitude** ($P_{\max}$) and the **local energy density** ($P_{\text{energy}}$).
 
@@ -67,7 +67,7 @@ $$
 \text{Attention}(Q_f, K_{tf}, V_{tf}) = \text{softmax}\left( \frac{Q_f K_{tf}^{\top}}{\sqrt{d_k}} \right) V_{tf}
 $$
 
-## 🚀 Performance Benchmarks
+## Performance Benchmarks
 The framework was evaluated on the **Bolt Loosening Dataset (Exp. 222)**, covering states from **Severe Loose** to **Over Tight**.
 
 | Metric | Performance | Notes |
@@ -132,7 +132,7 @@ python generalization.py
 3. Unzip and run `BoltDetectionGUI.exe` directly (No installation required).
 4. **Note:** Ensure you have `.NET Desktop Runtime 10.0` (or latest) installed if it doesn't start.
 
-## 📂 Project Structure
+## Project Structure
 ```text
 PIR-Net/
 ├── BoltDetectionGUI/        # C# Source Code (.NET 10.0)
@@ -145,7 +145,7 @@ PIR-Net/
 └── measure_efficiency.py    # Profiling Tools
 ```
 
-## 📝 Citation
+## Citation
 If you find this work useful in your research, please consider citing:
 ```bibtex
 @article{PIRNet2026,
