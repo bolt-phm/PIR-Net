@@ -77,7 +77,7 @@ The framework was evaluated on the **Bolt Loosening Dataset (Exp. 222)**, coveri
 | **Safety Precision** | **99.80%** | Near-zero false alarms for dangerous states |
 | **Noise Robustness** | **+56.7%** | Relative improvement at 0 dB SNR vs. ResNet |
 
-## 📦 Detailed Deployment Guide
+## Detailed Deployment Guide
 
 ### Step 1: Environment Setup (Anaconda)
 We recommend using Anaconda to manage dependencies. Open your terminal/command prompt:
