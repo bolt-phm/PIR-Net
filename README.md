@@ -76,13 +76,13 @@ pip install torch torchvision numpy scipy opencv-python scikit-learn matplotlib 
 
 ### Dataset Preparation
 ```bash
-unzip data.zip -d ./
+unzip data.zip -d ./data_set
 ```
 
 Update `config.json` accordingly:
 ```json
 "data": {
-  "data_dir": "./data",
+  "data_dir": "./data_set",
   "use_offline": true
 }
 ```
