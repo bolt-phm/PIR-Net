@@ -114,8 +114,11 @@ def main():
     # 3. 初始化集成模型
     try:
         model = EnsembleModel(config, fixed_paths, device)
-    except Exception:
-        print("ERROR_MODEL_INIT_FAILED")
+    except Exception as e:
+        # 【关键修改】打印具体错误信息
+        print(f"ERROR_MODEL_INIT_FAILED: {str(e)}")
+        import traceback
+        traceback.print_exc() # 打印完整堆栈，方便定位是 build_model 错还是 load 错
         return
 
     # 4. 加载数据

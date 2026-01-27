@@ -19,6 +19,36 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 #       核心信号处理引擎
 # ----------------------------- #
 
+def add_awgn_numpy(signal, snr_db):
+    """
+    【新增】Numpy 版本的 AWGN 噪声注入
+    用于在数据加载阶段从源头生成噪声，确保信号与频谱图的物理一致性。
+    """
+    if snr_db is None:
+        return signal
+    
+    # 确保是 float32
+    signal = signal.astype(np.float32)
+    
+    # 计算信号功率 P_signal (Mean Square)
+    signal_power = np.mean(signal ** 2)
+    
+    # 如果是静音片段，防止除零错误
+    if signal_power == 0:
+        return signal
+
+    # 计算噪声功率
+    # SNR(dB) = 10 * log10(P_signal / P_noise)
+    # => P_noise = P_signal / 10^(SNR/10)
+    noise_power = signal_power / (10 ** (snr_db / 10.0))
+    
+    # 生成标准正态分布噪声
+    noise = np.random.randn(*signal.shape).astype(np.float32)
+    
+    # 缩放噪声并叠加
+    # noise_scaled = noise * sqrt(P_noise)
+    return signal + noise * np.sqrt(noise_power)
+
 def smart_resample(raw_signal, target_len=8192):
     """
     【自适应智能重采样】
@@ -276,12 +306,7 @@ class SmartResampledDataset(Dataset):
             # 2. 自适应智能重采样 -> 统一变为 8192 点
             sig = smart_resample(raw_chunk, target_len=self.target_len_resampled)
             
-            # # 3. 混合归一化
-            # sig_mean = np.mean(sig)
-            # sig_std = np.std(sig)
-            # sig = (sig - sig_mean) / (sig_std + self.noise_threshold + 1e-6)
-            
-            # 3. 全局归一化 (新代码: 保留能量差异)
+            # 3. 全局归一化
             # 读取配置中的全局缩放因子，如果没配则默认用 1.0 (相当于不缩放)
             global_scale = self.config['data'].get('global_scale', 1.0)
             
@@ -290,10 +315,28 @@ class SmartResampledDataset(Dataset):
             
             # 统一除以全局最大值，将数据映射到 [-1, 1] 区间，但保留相对大小
             sig = sig / (global_scale + 1e-6)
+            
+            # ========================================================
+            # 🚀 核心修改：在生成图像之前，从源头注入物理噪声
+            # ========================================================
+            # 检查环境变量中是否有 FORCE_SNR 指令
+            forced_snr_str = os.environ.get('FORCE_SNR')
+            if forced_snr_str is not None and forced_snr_str.strip() != "":
+                try:
+                    snr_val = float(forced_snr_str)
+                    # 在此处修改 sig，不仅影响输出的 sig_t，
+                    # 也会直接影响下一步 generate_pseudo_image 生成的 img
+                    # 确保声波和图像的噪声特征是“同源”的
+                    sig = add_awgn_numpy(sig, snr_val)
+                except ValueError:
+                    pass
+            # ========================================================
+
             # 4. 生成图像
+            # 此时输入的 sig 已经是带噪的了！频谱图会真实反映出噪声特征。
             img = generate_pseudo_image(sig, self.config)
             
-            # 5. 增强
+            # 5. 增强 (训练时的随机增强，叠加在现有噪声之上)
             if self.is_train:
                 img, sig = augment_online(img, sig, self.config)
             

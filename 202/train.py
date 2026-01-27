@@ -13,12 +13,11 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from torch.utils.tensorboard import SummaryWriter
-
+import argparse
 # 引入自定义模块
 from dataset import create_dataloaders, run_offline_preprocessing
 from model import build_model
 
-# 禁用 OneDNN 优化以避免某些环境下的警告/报错
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -34,10 +33,10 @@ def set_seed(seed=42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
-        # torch.backends.cudnn.deterministic = True # 开启可复现模式(可能会降低速度)
+        # torch.backends.cudnn.deterministic = True # 可选：为了极致复现可能会牺牲速度
 
 # ----------------------------- #
-#       损失函数定义
+#       损失函数定义 (修改重点)
 # ----------------------------- #
 
 class FocalLoss(nn.Module):
@@ -90,7 +89,7 @@ class FocalLoss(nn.Module):
 
 class CombinedLSLoss(nn.Module):
     """
-    组合损失函数
+    【新增】组合损失函数
     结构: Ratio * LabelSmoothing + (1 - Ratio) * FocalLoss
     目的: Label Smoothing 防止过拟合 (主导)，Focal Loss 挖掘难样本 (辅助)
     """
@@ -99,14 +98,18 @@ class CombinedLSLoss(nn.Module):
         self.ratio = ratio
         
         # 1. 主导部分: Label Smoothing CrossEntropy
+        # alpha (class_weights) 同样作用于此
         self.ce_smooth = nn.CrossEntropyLoss(weight=alpha, label_smoothing=smoothing)
         
         # 2. 辅助部分: Focal Loss
         self.focal = FocalLoss(num_classes=num_classes, alpha=alpha, gamma=gamma)
 
     def forward(self, pred, target):
+        # 计算两部分 Loss
         loss_ce = self.ce_smooth(pred, target)
         loss_focal = self.focal(pred, target)
+        
+        # 加权融合
         return self.ratio * loss_ce + (1 - self.ratio) * loss_focal
 
 
@@ -230,6 +233,7 @@ def train_epoch(model, loaders, criterion, optimizer, device, epoch, config, wri
         if use_mixup:
             img, sig, targets_a, targets_b, lam = mixup_data(img, sig, lbl, mixup_alpha, device)
             output = model(img, sig)
+            # Combined Loss 支持 mixup (因为输入依然是 pred, target)
             loss = mixup_criterion(criterion, output, targets_a, targets_b, lam)
         else:
             output = model(img, sig)
@@ -300,12 +304,24 @@ def validate(model, loaders, criterion, device, epoch, writer=None):
 # ----------------------------- #
 
 def main():
-    config_file = 'config.json'
+    # --- 修改开始: 添加命令行参数解析 ---
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp_dir', type=str, default='.', help='实验文件夹路径，包含 config.json')
+    args = parser.parse_args()
+    
+    exp_dir = args.exp_dir
+    config_file = os.path.join(exp_dir, 'config.json')
+    
     if not os.path.exists(config_file):
-        logging.error("config.json not found.")
-        return
+        logging.error(f"Config file not found in: {config_file}")
+        # 如果子文件夹没有配置文件，尝试读取根目录默认配置（可选兜底逻辑）
+        if os.path.exists('config.json'):
+            logging.warning("Falling back to root config.json")
+            config_file = 'config.json'
+        else:
+            return
         
-    with open(config_file, 'r', encoding='utf-8') as f:
+    with open(config_file, 'r', encoding = "utf-8") as f:
         config = json.load(f)
 
     # 1. 设置随机种子
@@ -350,8 +366,9 @@ def main():
     else:
         target_weights = None
     
-    ls_factor = config['train'].get('label_smoothing_factor', 0.1)
-    ls_ratio = config['train'].get('combined_loss_ratio', 0.8)
+    # 读取配置
+    ls_factor = config['train'].get('label_smoothing_factor', 0.1) # 平滑因子
+    ls_ratio = config['train'].get('combined_loss_ratio', 0.8)     # 组合比例 (LS占主导)
     
     logging.info(f"Using CombinedLSLoss: Ratio={ls_ratio} (LabelSmoothing) / {1-ls_ratio:.1f} (Focal)")
     
@@ -373,7 +390,7 @@ def main():
         optimizer, T_0=T_0, T_mult=T_mult, eta_min=1e-6
     )
 
-    # 8. 早停与断点恢复 (关键修复部分)
+    # 8. 早停与断点恢复
     best_model_path = os.path.join(model_dir, config['train']['best_model_name'])
     early_stopping = EarlyStopping(
         patience=config['train']['early_stopping_patience'], 
@@ -383,53 +400,27 @@ def main():
 
     ckpt_path = os.path.join(model_dir, "checkpoint_last.pth")
     start_epoch = 0
-    
-    # --- 修复后的断点检测逻辑 ---
-    # 逻辑: 
-    # 1. 如果 Config 显式指定 True/False，则遵从 Config
-    # 2. 如果 Config 是 null (None)，则自动检测是否存在 checkpoint 文件
-    
-    resume_config = config['train'].get('resume', None)
-    
-    if resume_config is not None:
-        resume_flag = resume_config
-        logging.info(f"Resume flag set by config: {resume_flag}")
-    else:
-        # Config 未指定 (null)，启用自动检测
-        resume_flag = os.path.exists(ckpt_path)
-        if resume_flag:
-            logging.info(f"[Auto-Resume] Config is null, but checkpoint found at {ckpt_path}. Will resume.")
-        else:
-            logging.info(f"[Auto-Resume] No checkpoint found at {ckpt_path}. Starting fresh.")
+    if os.path.exists(ckpt_path):
+        resume_flag = config['train'].get('resume', False)
+        if not resume_flag:
+            print(f"\n[?] Found existing checkpoint: {ckpt_path}")
+            # ans = input("    Do you want to RESUME training? (y/n): ").strip().lower()
+            # if ans == 'y': resume_flag = True
+            resume_flag = False # 默认不询问，根据 config 决定，方便自动运行
 
-    if resume_flag:
-        if os.path.exists(ckpt_path):
+        if resume_flag:
             logging.info(f"Restoring state from {ckpt_path}...")
-            try:
-                checkpoint = torch.load(ckpt_path, map_location=device)
-                model.load_state_dict(checkpoint['model_state_dict'])
-                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                
-                # 尝试加载 scheduler
-                if 'scheduler_state_dict' in checkpoint and scheduler is not None:
-                    try:
-                        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-                    except Exception as e:
-                        logging.warning(f"Scheduler state mismatch ({e}), starting fresh scheduler.")
-                
-                # 尝试加载 early_stopping
-                if 'early_stopping_state_dict' in checkpoint:
-                    early_stopping.load_state(checkpoint['early_stopping_state_dict'])
-                    
-                start_epoch = checkpoint['epoch'] + 1
-                logging.info(f"Resume successful. Restarting from Epoch {start_epoch + 1}")
-            except Exception as e:
-                logging.error(f"Failed to load checkpoint: {e}. Starting fresh.")
-                start_epoch = 0
+            checkpoint = torch.load(ckpt_path, map_location=device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            try: scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+            except: logging.warning("Scheduler state mismatch, starting fresh.")
+            if 'early_stopping_state_dict' in checkpoint:
+                early_stopping.load_state(checkpoint['early_stopping_state_dict'])
+            start_epoch = checkpoint['epoch'] + 1
+            logging.info(f"Resume successful. Restarting from Epoch {start_epoch + 1}")
         else:
-            logging.warning(f"Resume requested but {ckpt_path} does not exist. Starting fresh.")
-    else:
-        logging.info("Starting a fresh training session (Resume=False or not found).")
+            logging.info("Starting a fresh training session.")
 
     # 9. 训练主循环
     logging.info(f"Total Epochs: {config['train']['epochs']}")
@@ -453,7 +444,7 @@ def main():
                      f"Val Loss: {val_loss:.4f} Acc: {val_acc:.4f} | "
                      f"LR: {curr_lr:.2e}")
         
-        # 保存断点 (Save Checkpoint)
+        # 保存断点
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
@@ -472,27 +463,13 @@ def main():
     # 10. 最终评估
     if os.path.exists(best_model_path):
         logging.info("---------- Final Evaluation (Test Split) ----------")
-        # 重新加载最佳模型
-        try:
-            model.load_state_dict(torch.load(best_model_path))
-        except Exception as e:
-            # 兼容有些保存是 dict 有些是 model 本身的情况
-            ckpt = torch.load(best_model_path)
-            if 'model_state_dict' in ckpt:
-                model.load_state_dict(ckpt['model_state_dict'])
-            else:
-                model.load_state_dict(ckpt)
-
+        model.load_state_dict(torch.load(best_model_path))
+        
         all_preds, all_labels = [], []
         model.eval()
         with torch.no_grad():
             for _, loader in test_loaders.items():
-                for batch in loader:
-                    if len(batch) == 3:
-                        img, sig, lbl = batch
-                    else:
-                        img, sig, lbl, _ = batch
-                    
+                for img, sig, lbl in loader:
                     if img is None: continue
                     output = model(img.to(device), sig.to(device))
                     _, pred = torch.max(output, 1)

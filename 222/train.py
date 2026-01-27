@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from torch.utils.tensorboard import SummaryWriter
-
+import argparse
 # 引入自定义模块
 from dataset import create_dataloaders, run_offline_preprocessing
 from model import build_model
@@ -304,10 +304,22 @@ def validate(model, loaders, criterion, device, epoch, writer=None):
 # ----------------------------- #
 
 def main():
-    config_file = 'config.json'
+    # --- 修改开始: 添加命令行参数解析 ---
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp_dir', type=str, default='.', help='实验文件夹路径，包含 config.json')
+    args = parser.parse_args()
+    
+    exp_dir = args.exp_dir
+    config_file = os.path.join(exp_dir, 'config.json')
+    
     if not os.path.exists(config_file):
-        logging.error("config.json not found.")
-        return
+        logging.error(f"Config file not found in: {config_file}")
+        # 如果子文件夹没有配置文件，尝试读取根目录默认配置（可选兜底逻辑）
+        if os.path.exists('config.json'):
+            logging.warning("Falling back to root config.json")
+            config_file = 'config.json'
+        else:
+            return
         
     with open(config_file, 'r', encoding = "utf-8") as f:
         config = json.load(f)
