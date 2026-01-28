@@ -378,10 +378,10 @@ pip install scipy==1.11.0 opencv-python==4.8.0
 ##  Project Structure
 ```text
 PIR-Net/
-├── BoltDetectionGUI/              # C# Desktop Application (.NET 10.0)
-│   ├── Form1.cs                   # Main GUI interface
-│   ├── Program.cs                 # Entry point
-│   └── PytorchRunner.cs           # Python inference wrapper
+├── BoltDetectionGUI/             # C# Desktop Application (.NET 10.0)
+│   ├── Form1.cs                  # Main GUI interface
+│   ├── Program.cs                # Entry point
+│   └── PytorchRunner.cs          # Python inference wrapper
 ├── config.json                   # Main configuration file
 ├── dataset.py                    # Physics-Informed Adaptive Resampling
 │   └── SmartResampledDataset     # Multi-scale dataset class
