@@ -285,7 +285,7 @@ dotnet publish -c Release -r win-x64 --self-contained
 **Solution:** Check data path and file format:
 ```bash
 # Verify .npy files exist
-ls ./data/SevereLoose/*.npy | wc -l
+ls ./data/case*/*.npy | wc -l
 
 # Check file structure
 python -c "import numpy as np; data = np.load('./data/SevereLoose/0001.npy'); print(data.shape)"
