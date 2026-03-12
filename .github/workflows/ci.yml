@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision torchaudio
+          python -m pip install -r requirements.txt
+
+      - name: Syntax lint
+        run: python -m compileall -q .
+
+      - name: Import smoke test
+        run: python -m tools.smoke_test --mode import
+
+      - name: Config dry-run smoke test
+        run: python -m tools.smoke_test --mode config --exp_dir experiments/pirnet_ablation/222
