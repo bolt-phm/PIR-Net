@@ -1,11 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as follows."
+message: "If you use this software, please cite it via this metadata."
 title: "PIR-Net: Physics-informed deep learning for bolt loosening detection"
 type: software
 authors:
   - family-names: "Shi"
     given-names: "Xinrui"
 repository-code: "https://github.com/bolt-phm/PIR-Net"
+url: "https://github.com/bolt-phm/PIR-Net"
 license: "MIT"
 version: "1.0.0"
 date-released: 2026-03-13

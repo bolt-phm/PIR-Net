@@ -1,19 +1,16 @@
-﻿# Impact / Percussion Bolt-Loosening Related Work (for R3-1)
+﻿# Impact / Percussion Bolt-Loosening Related Work Notes
 
-Suggested categories to strengthen literature review:
+This file summarizes topical categories useful for project documentation and comparative positioning.
+
+## Suggested categories
 
 1. Percussion-excitation based bolt loosening detection
 2. Vibro-acoustic impact response analysis for preload estimation
-3. Deep learning on hammering/percussion signals (spectrogram/CNN/Transformer)
+3. Deep learning on percussion signals (spectrogram/CNN/Transformer)
 4. Hybrid physics + deep diagnosis for bolted joints
 
-Suggested insertion strategy in manuscript:
+## Documentation guidance
 
-- Add 4-8 recent papers in Introduction/Related Work.
-- Split discussion into: traditional percussion methods vs deep learning methods.
-- Explicitly state where your baselines (301-306) align in this taxonomy.
-
-Note:
-
-- Keep manuscript claims calibrated: baseline comparisons are implemented under unified protocol.
-- If exact original paper hyperparameters are used, document them in a supplemental table.
+- Keep claims aligned with implemented experiments.
+- Distinguish traditional percussion methods from data-driven models.
+- Explicitly map baseline groups (`301`-`306`) to the taxonomy above when preparing technical reports.
