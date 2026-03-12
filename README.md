@@ -6,7 +6,7 @@ Physics-informed deep learning framework for bolt loosening detection from 1 MHz
 
 This repository provides the codebase used for PIR-Net experiments and reviewer-requested baseline comparisons in bolt loosening diagnosis. It is organized for reproducible research, controlled baseline evaluation, and assisted validation via a lightweight Windows GUI.
 
-The repository intentionally excludes raw datasets from version control.
+A dataset archive (`data.zip`) is provided through Git LFS for reproducibility and local evaluation.
 
 ## 2. Scope
 
@@ -69,7 +69,7 @@ pip install numpy scipy pandas scikit-learn matplotlib seaborn opencv-python tqd
 
 ## 5. Dataset Preparation
 
-Datasets are not distributed in this repository. Prepare a directory containing class subfolders (default: `case1` to `case16`) and `.npy` samples.
+A dataset archive is included as `data.zip` (Git LFS managed). Extract it to a local directory containing class subfolders (default: `case1` to `case16`) and `.npy` samples.
 
 Reference layout:
 
@@ -81,6 +81,14 @@ Reference layout:
 └─ case16/
 ```
 
+After cloning, ensure LFS objects are downloaded:
+
+```bash
+git lfs install
+git lfs pull
+```
+
+Then extract `data.zip` to your chosen dataset directory.
 ## 6. Configure Data Paths
 
 Before training, update all experiment configs:

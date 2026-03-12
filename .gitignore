@@ -1,6 +1,6 @@
 # Dataset / archives
-data.zip
 *.zip
+!data.zip
 *.npy
 
 # Training outputs
