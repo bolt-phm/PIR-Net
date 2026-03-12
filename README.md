@@ -6,8 +6,6 @@ Physics-informed deep learning framework for bolt loosening detection from 1 MHz
 
 This repository provides the implementation used for PIR-Net experiments and reviewer-requested external baseline comparisons. It is structured for reproducible research, controlled benchmarking, and assisted validation with an auxiliary Windows GUI.
 
-This is not a code-only repository. A dataset archive (`data.zip`) is included and distributed through Git LFS for reproducibility and local evaluation.
-
 ## 2. Scope
 
 This project covers three workflows:
