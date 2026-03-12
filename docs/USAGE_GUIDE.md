@@ -1,6 +1,6 @@
-﻿# Usage Guide (Code-Only Release, Dataset Excluded)
+﻿# Usage Guide (Dataset Included via Git LFS)
 
-This package is prepared for GitHub open-source release and intentionally **does not include any dataset files**.
+This package is prepared for GitHub open-source release and includes `data.zip` via Git LFS.
 
 ## 1. Package Layout
 
@@ -81,7 +81,7 @@ pip install numpy scipy pandas scikit-learn matplotlib seaborn opencv-python tqd
 
 ## 3. Dataset Preparation (Required)
 
-Because datasets are excluded from this release, prepare your `.npy` dataset directory first.
+Download LFS objects (`git lfs pull`) and extract `data.zip`, then prepare your `.npy` dataset directory first.
 
 Expected class folders (default naming used by configs):
 

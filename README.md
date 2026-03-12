@@ -6,7 +6,7 @@ Physics-informed deep learning framework for bolt loosening detection from 1 MHz
 
 This repository provides the implementation used for PIR-Net experiments and reviewer-requested external baseline comparisons. It is structured for reproducible research, controlled benchmarking, and assisted validation with an auxiliary Windows GUI.
 
-A dataset archive (`data.zip`) is provided through Git LFS for reproducibility and local evaluation.
+This is not a code-only repository. A dataset archive (`data.zip`) is included and distributed through Git LFS for reproducibility and local evaluation.
 
 ## 2. Scope
 
@@ -70,6 +70,22 @@ git lfs pull
 ```
 
 Extract `data.zip` to a dataset directory containing class subfolders (default: `case1` to `case16`) with `.npy` samples.
+
+### 5.1 Dataset Source
+
+The uploaded `data.zip` is the processed dataset package used in the PIR-Net study.
+
+- Source type: self-collected impact-vibration data acquired by the author using an FPGA-based acquisition system for bolted-joint experiments.
+- Sampling setting: 1 MHz (see experiment configs, e.g., `data.sr = 1000000`).
+- Packaging format: `.npy` files organized by `case1` to `case16`, with downstream 6-class fusion labels used by PIR-Net.
+- Data ownership: collected by the repository author; not sourced from a third-party public benchmark.
+- Availability: versioned in this repository via Git LFS (`data.zip`).
+
+If you use the dataset package in derivative work, please cite this repository and the corresponding PIR-Net paper.
+
+Representative acquisition setup (FPGA-based):
+
+![FPGA-based data acquisition setup](docs/assets/fpga_acquisition_setup.png)
 
 ## 6. Configure Data Paths
 
@@ -159,3 +175,12 @@ This repository is released under the MIT License. See `LICENSE` for details.
 ## 14. Citation
 
 Please cite using metadata in `CITATION.cff`.
+## 15. Community and Collaboration
+
+Repository collaboration conventions are defined in:
+
+- `CONTRIBUTING.md`
+- `CODE_OF_CONDUCT.md`
+- `SECURITY.md`
+- `.github/ISSUE_TEMPLATE/`
+- `.github/pull_request_template.md`

@@ -1,0 +1,40 @@
+name: Bug Report
+description: Report a reproducible bug in PIR-Net code or workflow
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug. Please provide enough detail for reproducibility.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, CUDA/GPU info
+      placeholder: e.g., Ubuntu 22.04, Python 3.11, CUDA 12.1, RTX 5090
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      description: Exact commands and config path
+      placeholder: |
+        1. python tools/update_data_dir.py ...
+        2. cd experiments/pirnet_ablation/222
+        3. python train.py --exp_dir .
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior / Logs
+    validations:
+      required: true
