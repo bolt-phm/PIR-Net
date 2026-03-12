@@ -1,6 +1,6 @@
-﻿# BoltDetectionGUI (Windows Validation Assistant)
+﻿# BoltDetectionGUI (Auxiliary GUI)
 
-This folder contains the optional Windows desktop validation assistant for PIR-Net. It helps users edit configs, invoke the Python validation bridge, and inspect results. It is not a standalone data-acquisition/runtime system.
+This folder provides an auxiliary GUI for PIR-Net validation and demonstration. It supports configuration management and Python-bridge execution, and is not a standalone DAQ/runtime system.
 
 ## Folder Layout
 
