@@ -1,0 +1,19 @@
+# Dataset / archives
+data.zip
+*.zip
+*.npy
+
+# Training outputs
+checkpoints/
+logs/
+results/
+data_offline/
+data_set/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+Thumbs.db
