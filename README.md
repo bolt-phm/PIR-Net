@@ -5,7 +5,7 @@ Physics-informed deep learning for bolt loosening detection from 1 MHz vibration
 This repository is organized for **two real use cases**:
 
 1. **Research reproduction**: run the full PIR-Net ablation suite and reviewer-requested baselines.
-2. **Practical deployment**: use a Windows GUI helper tool (`BoltDetectionGUI`) for configuration and assisted inference workflows.
+2. **Validation assistance**: use a Windows GUI helper tool (`BoltDetectionGUI`) for config editing and assisted validation workflows.
 
 ---
 
@@ -17,7 +17,7 @@ If you have ever tried to reproduce bolt-loosening papers, you probably met thes
 - Data preprocessing differs silently between methods, making comparisons unfair.
 - Reviewer-requested baselines are missing or not runnable.
 - New users cannot tell what to run first.
-- Industrial users need a simple GUI, not just Python scripts.
+- Users need a simple GUI for config + validation, not only command-line scripts.
 
 This repo addresses those issues by:
 
@@ -143,12 +143,12 @@ See [docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md) for full commands.
 
 ## BoltDetectionGUI helper tool
 
-`BoltDetectionGUI` is a Windows helper application for:
+`BoltDetectionGUI` is a Windows **validation assistant** for PIR-Net workflows. It launches Python-side checks, manages run parameters, and displays validation results. It is not a standalone DAQ/runtime engine implemented entirely in C#.
 
 - project config editing,
 - selecting Python runtime,
-- assisted batch inference runs,
-- optional USB mode workflow.
+- assisted batch validation/inference runs,
+- optional USB-triggered validation workflow.
 
 ## Install GUI
 
@@ -233,4 +233,5 @@ MIT License. See [LICENSE](LICENSE).
 ## Citation
 
 If this repository helps your research or deployment, please cite your PIR-Net paper and this repository URL.
+
 

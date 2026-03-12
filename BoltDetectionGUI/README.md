@@ -1,6 +1,6 @@
-﻿# BoltDetectionGUI (Windows Helper Tool)
+﻿# BoltDetectionGUI (Windows Validation Assistant)
 
-This folder contains the optional Windows desktop tool used to configure and run PIR-Net inference workflows.
+This folder contains the optional Windows desktop validation assistant for PIR-Net. It helps users edit configs, invoke the Python validation bridge, and inspect results. It is not a standalone data-acquisition/runtime system.
 
 ## Folder Layout
 
@@ -45,4 +45,3 @@ points to a folder containing:
 - `config.json`
 - `inference_engine.py`
 - trained weights in `checkpoints/...`
-
