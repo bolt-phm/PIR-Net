@@ -274,6 +274,18 @@ Run each script according to its expected CSV/result inputs.
 
 ---
 
-## 10. About README.md
+## 10. BoltDetectionGUI Helper Tool
 
-As requested, the repository `README.md` in this release is copied from the previous version and has **not been rewritten yet**.
+This repository also includes an optional Windows helper application:
+- `BoltDetectionGUI/src/` (source)
+- `BoltDetectionGUI/release/BoltDetection_setup.exe` (installer)
+
+Runtime bridge requirement:
+- The GUI expects `inference_engine.py` in the selected project path.
+- This repository ships `inference_engine.py` at the root.
+
+For easiest operation, set the GUI **Project Path** to the repository root.
+
+## 11. README status
+
+The repository `README.md` has been updated to match the latest code structure, GUI packaging, and beginner deployment flow.
