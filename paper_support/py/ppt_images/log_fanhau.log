@@ -1,0 +1,249 @@
+=================================================
+   批量泛化测试日志 (Batch Generalization Log)   
+   开始时间: Mon Jan 12 22:54:44 CST 2026                             
+=================================================
+-------------------------------------------------
+>>> 正在处理实验: 022
+[执行] python generalization.py ...
+2026-01-12 22:54:48,122 - INFO - Using device: cuda
+2026-01-12 22:54:48,123 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:54:48,123 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:54:48,438 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:54:48,439 - INFO - Initializing Data Loaders...
+2026-01-12 22:54:48,481 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:54:48,488 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:54:48,496 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:54:48,507 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:55:01,751 - INFO - ============================================================
+2026-01-12 22:55:01,751 - INFO - 🔥 FINAL RESULT ACCURACY: 0.6997 (Models: 1)
+2026-01-12 22:55:01,751 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.7724    0.6162    0.6855      3679
+       Loose     0.9865    0.6298    0.7688      2547
+    Critical     0.5043    0.9531    0.6596      1981
+  Transition     0.9765    0.6409    0.7739      3113
+      Secure     0.5662    0.6517    0.6059      2547
+   OverTight     0.6570    0.8273    0.7324      2264
+
+    accuracy                         0.6997     16131
+   macro avg     0.7438    0.7198    0.7043     16131
+weighted avg     0.7639    0.6997    0.7065     16131
+
+2026-01-12 22:55:01,952 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 022 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/022_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 122
+[执行] python generalization.py ...
+2026-01-12 22:55:06,879 - INFO - Using device: cuda
+2026-01-12 22:55:06,879 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:55:06,880 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:55:07,569 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:55:07,570 - INFO - Initializing Data Loaders...
+2026-01-12 22:55:07,616 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:55:07,624 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:07,631 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:07,641 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:55:20,029 - INFO - ============================================================
+2026-01-12 22:55:20,029 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9479 (Models: 1)
+2026-01-12 22:55:20,029 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9983    0.9494    0.9733      3679
+       Loose     0.9670    0.9215    0.9437      2547
+    Critical     0.9005    0.9955    0.9456      1981
+  Transition     0.9951    0.9708    0.9828      3113
+      Secure     0.8928    0.9058    0.8992      2547
+   OverTight     0.8977    0.9492    0.9227      2264
+
+    accuracy                         0.9479     16131
+   macro avg     0.9419    0.9487    0.9445     16131
+weighted avg     0.9499    0.9479    0.9482     16131
+
+2026-01-12 22:55:20,229 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 122 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/122_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 202
+[执行] python generalization.py ...
+2026-01-12 22:55:24,838 - INFO - Using device: cuda
+2026-01-12 22:55:24,838 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:55:24,838 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:55:25,779 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:55:25,780 - INFO - Initializing Data Loaders...
+2026-01-12 22:55:25,823 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:55:25,830 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:25,838 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:25,847 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:55:40,249 - INFO - ============================================================
+2026-01-12 22:55:40,249 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9557 (Models: 1)
+2026-01-12 22:55:40,249 - INFO - ============================================================
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9997    0.9600    0.9795      3679
+       Loose     0.9600    0.9611    0.9606      2547
+    Critical     0.9373    0.9813    0.9588      1981
+  Transition     0.9861    0.9814    0.9837      3113
+      Secure     0.9156    0.9160    0.9158      2547
+   OverTight     0.9038    0.9293    0.9164      2264
+
+    accuracy                         0.9557     16131
+   macro avg     0.9504    0.9549    0.9525     16131
+weighted avg     0.9564    0.9557    0.9559     16131
+
+2026-01-12 22:55:40,450 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 202 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/202_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 212
+[执行] python generalization.py ...
+2026-01-12 22:55:44,905 - INFO - Using device: cuda
+2026-01-12 22:55:44,905 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:55:44,905 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:55:45,805 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:55:45,805 - INFO - Initializing Data Loaders...
+2026-01-12 22:55:45,847 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:55:45,855 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:45,862 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:55:45,871 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:56:07,880 - INFO - ============================================================
+2026-01-12 22:56:07,880 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9452 (Models: 1)
+2026-01-12 22:56:07,880 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9997    0.9402    0.9690      3679
+       Loose     0.9464    0.9297    0.9380      2547
+    Critical     0.9169    0.9854    0.9499      1981
+  Transition     0.9885    0.9900    0.9892      3113
+      Secure     0.8942    0.8963    0.8953      2547
+   OverTight     0.8877    0.9289    0.9078      2264
+
+    accuracy                         0.9452     16131
+   macro avg     0.9389    0.9451    0.9416     16131
+weighted avg     0.9466    0.9452    0.9455     16131
+
+2026-01-12 22:56:08,085 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 212 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/212_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 220
+[执行] python generalization.py ...
+2026-01-12 22:56:12,643 - INFO - Using device: cuda
+2026-01-12 22:56:12,643 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:56:12,644 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:56:13,663 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:56:13,664 - INFO - Initializing Data Loaders...
+2026-01-12 22:56:13,707 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:56:13,715 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:13,724 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:13,733 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:56:30,186 - INFO - ============================================================
+2026-01-12 22:56:30,186 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9429 (Models: 1)
+2026-01-12 22:56:30,186 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9991    0.9503    0.9741      3679
+       Loose     0.9684    0.9372    0.9525      2547
+    Critical     0.9287    0.9859    0.9564      1981
+  Transition     0.9895    0.9390    0.9636      3113
+      Secure     0.8753    0.9368    0.9050      2547
+   OverTight     0.8662    0.9121    0.8886      2264
+
+    accuracy                         0.9429     16131
+   macro avg     0.9379    0.9435    0.9400     16131
+weighted avg     0.9455    0.9429    0.9436     16131
+
+2026-01-12 22:56:30,385 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 220 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/220_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 221
+[执行] python generalization.py ...
+2026-01-12 22:56:35,386 - INFO - Using device: cuda
+2026-01-12 22:56:35,387 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:56:35,387 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:56:36,431 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:56:36,432 - INFO - Initializing Data Loaders...
+2026-01-12 22:56:36,474 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:56:36,481 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:36,488 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:36,498 - INFO - Starting Ensemble Inference on Test Split...
+2026-01-12 22:56:52,995 - INFO - ============================================================
+2026-01-12 22:56:52,996 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9361 (Models: 1)
+2026-01-12 22:56:52,996 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9962    0.9329    0.9635      3679
+       Loose     0.9488    0.9168    0.9325      2547
+    Critical     0.9045    0.9278    0.9160      1981
+  Transition     0.9538    0.9814    0.9674      3113
+      Secure     0.8780    0.9270    0.9018      2547
+   OverTight     0.9035    0.9183    0.9108      2264
+
+    accuracy                         0.9361     16131
+   macro avg     0.9308    0.9340    0.9320     16131
+weighted avg     0.9376    0.9361    0.9364     16131
+
+2026-01-12 22:56:53,192 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 221 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/221_confusion_matrix.png
+
+-------------------------------------------------
+>>> 正在处理实验: 222
+[执行] python generalization.py ...
+2026-01-12 22:56:58,094 - INFO - Using device: cuda
+2026-01-12 22:56:58,094 - WARNING - Config 中未找到有效的集成模型列表，回退到默认最佳模型 (Single Model Mode)。
+2026-01-12 22:56:58,094 - INFO - 🌟 初始化集成模型，共有 1 个成员:
+2026-01-12 22:56:59,154 - INFO -   ✅ 已加载: best_model_robust_noise.pth
+2026-01-12 22:56:59,159 - INFO - Initializing Data Loaders...
+2026-01-12 22:56:59,197 - INFO - [TRAIN] MultiScale=[1.0]: Indexed 77406 segments.
+2026-01-12 22:56:59,205 - INFO - [VAL] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:59,212 - INFO - [TEST] MultiScale=[1.0]: Indexed 16131 segments.
+2026-01-12 22:56:59,222 - INFO - Starting Ensemble Inference on Test Split...
+]
+2026-01-12 22:57:15,698 - INFO - ============================================================
+2026-01-12 22:57:15,698 - INFO - 🔥 FINAL RESULT ACCURACY: 0.9500 (Models: 1)
+2026-01-12 22:57:15,698 - INFO - ============================================================
+
+Detailed Classification Report:
+
+              precision    recall  f1-score   support
+
+ SevereLoose     0.9980    0.9592    0.9782      3679
+       Loose     0.9757    0.9466    0.9609      2547
+    Critical     0.9294    0.9828    0.9553      1981
+  Transition     0.9829    0.9769    0.9799      3113
+      Secure     0.8950    0.8999    0.8974      2547
+   OverTight     0.8863    0.9293    0.9073      2264
+
+    accuracy                         0.9500     16131
+   macro avg     0.9445    0.9491    0.9465     16131
+weighted avg     0.9512    0.9500    0.9503     16131
+
+2026-01-12 22:57:15,899 - INFO - Confusion Matrix saved to: /root/tf-logs/final_generalization_matrix.png
+✅ 222 运行完成
+   -> 图片已保存至: /root/autodl-tmp/kangganrao/log_fanhua/222_confusion_matrix.png
+
