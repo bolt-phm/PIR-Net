@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 PIRNET_IDS = ["022", "122", "202", "212", "220", "221", "222"]
-BASELINE_IDS = ["301", "302", "303", "304", "305", "306"]
+BASELINE_IDS = ["301", "302", "303", "304", "305", "306", "307"]
+ZENODO_IDS = ["401", "402", "403", "404"]
 
 PIRNET_AGGREGATE_FILES = [
     "ablation_bar_chart.png",
@@ -279,6 +280,74 @@ def build_bundle(root: Path) -> None:
             "Export from baseline training runs for full traceability.",
         )
 
+    # Zenodo cross-condition experiments
+    for exp_id in ZENODO_IDS:
+        exp_src = root / "experiments" / "zenodo_generalization" / exp_id
+        exp_dst = out / "zenodo_generalization" / exp_id
+
+        cfg_src = exp_src / "config.json"
+        if cfg_src.exists():
+            copy_with_index(
+                cfg_src,
+                exp_dst / "config_snapshot.json",
+                out,
+                index,
+                "zenodo_generalization",
+                exp_id,
+                "config_snapshot",
+                "Configuration snapshot for cross-condition benchmark reproducibility.",
+            )
+
+        metrics_template_path = exp_dst / "metrics_summary_template.json"
+        metrics_template = {
+            "experiment_id": exp_id,
+            "group": "zenodo_generalization",
+            "status": "template",
+            "metrics": {
+                "best_val_accuracy": None,
+                "test_accuracy": None,
+                "macro_f1": None,
+                "weighted_f1": None,
+                "val_loss": None,
+            },
+            "notes": "Fill with Zenodo benchmark metrics using the same reporting schema.",
+        }
+        write_json(metrics_template_path, metrics_template)
+        add_generated(
+            index,
+            out,
+            metrics_template_path,
+            "zenodo_generalization",
+            exp_id,
+            "metrics_summary_template",
+            "Template file for standardized cross-condition benchmark reporting.",
+        )
+
+        add_placeholder(
+            index,
+            "zenodo_generalization",
+            exp_id,
+            "confusion_matrix",
+            f"zenodo_generalization/{exp_id}/artifacts/confusion_matrix.png",
+            "Expected after running Zenodo generalization evaluation.",
+        )
+        add_placeholder(
+            index,
+            "zenodo_generalization",
+            exp_id,
+            "best_model_checkpoint",
+            f"zenodo_generalization/{exp_id}/artifacts/best_model.pth",
+            "Optional open artifact; include if weight release is planned.",
+        )
+        add_placeholder(
+            index,
+            "zenodo_generalization",
+            exp_id,
+            "train_log",
+            f"zenodo_generalization/{exp_id}/artifacts/train.log",
+            "Export from Zenodo benchmark runs for full traceability.",
+        )
+
     # Experiment design manifest
     plan = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -295,6 +364,10 @@ def build_bundle(root: Path) -> None:
             "external_baselines": {
                 "ids": BASELINE_IDS,
                 "description": "Unified external baselines without PIR-specific preprocessing",
+            },
+            "zenodo_generalization": {
+                "ids": ZENODO_IDS,
+                "description": "Cross-condition benchmark on external public dataset (Zenodo 15516419)",
             },
         },
         "artifact_policy": {
@@ -348,6 +421,7 @@ This folder provides a structured, open-source-ready result bundle aligned with 
 
 - PIR-Net ablation experiments: {', '.join(PIRNET_IDS)}
 - External baselines: {', '.join(BASELINE_IDS)}
+- Zenodo cross-condition benchmarks: {', '.join(ZENODO_IDS)}
 
 ## Included Files
 

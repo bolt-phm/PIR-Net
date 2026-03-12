@@ -1,102 +1,83 @@
-﻿# PIR-Net
+# PIR-Net
 
-Physics-informed deep learning framework for bolt loosening detection from 1 MHz vibration signals.
+PIR-Net is a physics-informed deep learning framework for bolt-loosening diagnosis from ultra-high-frequency (1 MHz) vibration signals.
 
-## 1. Overview
+## Overview
 
-This repository contains:
+This repository provides a complete and reproducible project package, including:
 
-1. PIR-Net training and evaluation pipelines,
-2. external baseline benchmark implementations,
-3. an FPGA-acquired dataset package (`data.zip`, Git LFS),
-4. an auxiliary Windows GUI for assisted validation.
+1. PIR-Net ablation experiments (`022`-`222`).
+2. External baseline experiments (`301`-`307`) under a unified non-PIR protocol.
+3. Public-dataset cross-condition generalization experiments (`401`-`404`, Zenodo).
+4. A Windows auxiliary validation GUI (`BoltDetectionGUI`).
+5. A curated experiment-result bundle and figure-generation scripts.
 
-## 2. Scope
-
-The project supports three workflows:
-
-1. PIR-Net ablation and model development.
-2. External baseline benchmarking under a unified protocol.
-3. Assisted validation using `BoltDetectionGUI` as a Python-bridge front-end.
-
-## 3. Repository Structure
+## Repository Layout
 
 ```text
 PIRNet_OpenSource_Root/
-├─ README.md
-├─ LICENSE
-├─ requirements.txt
-├─ CONTRIBUTING.md
-├─ CODE_OF_CONDUCT.md
-├─ SECURITY.md
-├─ CITATION.cff
-├─ docs/
-│  ├─ USAGE_GUIDE.md
-│  └─ assets/
-├─ experiments/
-│  ├─ pirnet_ablation/
-│  └─ external_baselines/
-├─ BoltDetectionGUI/
-├─ tools/
-│  ├─ update_data_dir.py
-│  └─ smoke_test.py
-├─ inference_engine.py
-├─ train.py
-├─ generalization.py
-└─ dataset.py
+|-- README.md
+|-- requirements.txt
+|-- CITATION.cff
+|-- CONTRIBUTING.md
+|-- CODE_OF_CONDUCT.md
+|-- SECURITY.md
+|-- data.zip
+|-- docs/
+|   |-- USAGE_GUIDE.md
+|   `-- assets/
+|-- experiments/
+|   |-- pirnet_ablation/
+|   |-- external_baselines/
+|   `-- zenodo_generalization/
+|-- experiment_results/
+|-- BoltDetectionGUI/
+|-- paper_support/
+|-- tools/
+`-- *.py (project-level runtime entry points)
 ```
 
-## 4. Environment Setup
+## Data Provenance
 
-Install dependencies:
+`data.zip` is the in-house dataset used for PIR-Net development.
+
+1. Source: self-collected impact-vibration measurements from an FPGA-based acquisition setup.
+2. Sampling rate: 1 MHz.
+3. Storage format: `.npy` samples organized by `case1`-`case16`.
+4. Availability: versioned in this repository via Git LFS.
+
+The external benchmark used for cross-condition validation is Zenodo record `15516419` (`10.5281/zenodo.15516419`) and is not bundled in this repository.
+
+Representative acquisition setup:
+
+![FPGA-based data acquisition setup](docs/assets/fpga_acquisition_setup.png)
+
+## Environment Setup
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-```
-
-## 5. Dataset
-
-The repository includes `data.zip` via Git LFS.
-
-```bash
 git lfs install
 git lfs pull
 ```
 
-Extract `data.zip` to a dataset directory containing class subfolders (default: `case1` to `case16`) with `.npy` samples.
+## Data Path Configuration
 
-### 5.1 Dataset Source
-
-The uploaded `data.zip` is the processed dataset package used in this project.
-
-- Source type: self-collected impact-vibration data acquired by the author using an FPGA-based acquisition system for bolted-joint experiments.
-- Sampling setting: 1 MHz (see experiment configs, e.g., `data.sr = 1000000`).
-- Packaging format: `.npy` files organized by `case1` to `case16`, with downstream 6-class fusion labels used by PIR-Net.
-- Data ownership: collected by the repository author; not sourced from a third-party public benchmark.
-- Availability: versioned in this repository via Git LFS (`data.zip`).
-
-Representative acquisition setup (FPGA-based):
-
-![FPGA-based data acquisition setup](docs/assets/fpga_acquisition_setup.png)
-
-## 6. Configure Data Paths
-
-Update all experiment configs before training:
+Use the utility below to update experiment `config.json` files before training:
 
 ```bash
 python tools/update_data_dir.py --root . --data_dir /absolute/path/to/your/data
 ```
 
-Optional:
+Optional generalization data path:
 
 ```bash
 python tools/update_data_dir.py --root . --data_dir /absolute/path/to/your/data --generalization_dir /absolute/path/to/generalization_data
 ```
 
-## 7. Running Experiments
+## Quick Start
 
-PIR-Net example (`222`):
+PIR-Net (`Exp 222`):
 
 ```bash
 cd experiments/pirnet_ablation/222
@@ -104,63 +85,44 @@ python train.py --exp_dir .
 python generalization.py --exp_dir .
 ```
 
-External baselines (`301`-`306`):
+External baselines (`Exp 301`-`307`):
 
 ```bash
 cd experiments/external_baselines
-python run_baselines.py --experiments 301 302 303 304 305 306
-python run_baselines.py --experiments 301 302 303 304 305 306 --with_generalization
+python run_baselines.py --experiments 301 302 303 304 305 306 307
+python run_baselines.py --experiments 301 302 303 304 305 306 307 --with_generalization
 ```
 
-## 8. Smoke Validation
+Zenodo cross-condition benchmark (`Exp 401`-`404`):
 
-Run lightweight repository checks:
+```bash
+cd experiments/zenodo_generalization
+python run_experiments.py --experiments 401 402 403 404 --with_generalization
+```
+
+## Validation and Tooling
+
+Repository smoke check:
 
 ```bash
 python -m tools.smoke_test --mode all --exp_dir experiments/pirnet_ablation/222
 ```
 
-This command performs:
+Auxiliary GUI installer:
 
-- import smoke checks for core modules,
-- config schema validation,
-- dry-run update of a copied `config.json`.
+1. `BoltDetectionGUI/release/BoltDetection_setup.exe`
+2. `BoltDetectionGUI/release/SHA256SUMS.txt`
 
-## 9. Auxiliary GUI
+## Citation
 
-`BoltDetectionGUI` is an auxiliary GUI for validation and demonstration. It supports configuration management and Python-bridge execution. It is not a standalone DAQ/runtime system.
+Citation metadata is maintained in `CITATION.cff`. Use the GitHub "Cite this repository" panel to export BibTeX or APA entries.
 
-Installer assets:
+## Governance
 
-- `BoltDetectionGUI/release/BoltDetection_setup.exe`
-- `BoltDetectionGUI/release/SHA256SUMS.txt`
+1. Contribution process: `CONTRIBUTING.md`
+2. Community policy: `CODE_OF_CONDUCT.md`
+3. Vulnerability handling: `SECURITY.md`
 
-## 10. Continuous Integration
+## License
 
-A minimal GitHub Actions workflow is provided at `.github/workflows/ci.yml`.
-
-CI currently performs:
-
-1. syntax lint (`python -m compileall -q .`),
-2. import smoke test,
-3. config dry-run smoke test.
-
-## 11. Citation
-
-Machine-readable citation metadata is provided in `CITATION.cff`.
-
-GitHub can generate APA/BibTeX directly from the repository sidebar via **Cite this repository**.
-
-## 12. Community and Collaboration
-
-Project collaboration conventions are defined in:
-
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `SECURITY.md`
-- `.github/ISSUE_TEMPLATE/`
-- `.github/pull_request_template.md`
-
-## 13. License
-
-This repository is released under the MIT License. See `LICENSE` for details.
+This project is released under the MIT License (`LICENSE`).

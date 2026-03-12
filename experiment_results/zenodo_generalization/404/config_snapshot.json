@@ -1,0 +1,102 @@
+{
+  "project": {
+    "name": "Zenodo15516419DamageGeneralization",
+    "version": "exp-404-cnn-bilstm-attn",
+    "exp_id": "404",
+    "description": "CNN-BiLSTM-Attention baseline for binary damage detection."
+  },
+  "data": {
+    "data_dir": "../data/zenodo_15516419",
+    "file_glob": [
+      "**/Dynamic*Random*/*Piezo*/*.mat",
+      "**/*Random*/*Piezo*/*.mat",
+      "**/*Piezo*/*.mat"
+    ],
+    "channels": ["A", "B", "C", "D", "E", "F", "Gx", "Gy"],
+    "channel_key_patterns": ["Data1_{ch}", "Data1 {ch}", "Data1{ch}", "{ch}", "ch_{ch}"],
+    "sample_rate": 500,
+    "expected_sample_rate": 500,
+    "allow_resample": true,
+    "window_seconds": 4.0,
+    "stride_seconds": 1.0,
+    "test_id_min": 1,
+    "test_id_max": 17,
+    "apply_config_sign_correction": true,
+    "test_config_by_id": {
+      "1": "cfg1", "2": "cfg1", "3": "cfg1", "4": "cfg1", "5": "cfg1",
+      "6": "cfg1", "7": "cfg1", "8": "cfg1", "9": "cfg1", "10": "cfg1",
+      "11": "cfg21", "12": "cfg22", "13": "cfg21", "14": "cfg22",
+      "15": "cfg22", "16": "cfg21", "17": "cfg21"
+    },
+    "sign_by_config": {
+      "cfg1":  [1, 1, -1, 1, -1, 1, 1, 1],
+      "cfg21": [1, 1, -1, 1, -1, 1, 1, 1],
+      "cfg22": [1, 1, -1, 1,  1, 1, 1, 1]
+    },
+    "label_by_test_id": {
+      "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0,
+      "10": 0, "11": 0, "12": 0, "13": 0, "14": 0,
+      "15": 1, "16": 1, "17": 1
+    },
+    "class_names": ["Baseline", "Damaged"],
+    "num_classes": 2,
+    "normalization": "per_channel_zscore",
+    "global_scale": 1.0,
+    "image_size": [32, 32],
+    "train_test_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16],
+    "val_test_ids": [],
+    "test_test_ids": [11, 13, 17],
+    "use_val_from_train": true,
+    "val_from_train_ratio": 0.15,
+    "val_from_train_seed": 3407,
+    "skip_single_class_groups_in_generalization": true,
+    "batch_size": 192,
+    "num_workers": 16,
+    "prefetch_factor": 6,
+    "eval_groups": {
+      "main_test": [11, 13, 17],
+      "config_2_1_mix": [11, 13, 16, 17],
+      "config_2_2_mix": [12, 14, 15]
+    }
+  },
+  "augment": {
+    "signal": {
+      "use_augment": true,
+      "params": {
+        "amplitude_scale_p": 0.35,
+        "amplitude_scale_range": [0.92, 1.08],
+        "noise_p": 0.15,
+        "snr_db_range": [15, 30]
+      }
+    }
+  },
+  "model": {
+    "name": "signal_cnn_bilstm_attn",
+    "in_channels": 8,
+    "dropout": 0.4
+  },
+  "train": {
+    "seed": 3407,
+    "device": "cuda",
+    "epochs": 170,
+    "learning_rate": 0.00025,
+    "weight_decay": 0.0003,
+    "optimizer": "adamw",
+    "use_cosine": true,
+    "early_stopping_patience": 40,
+    "early_stopping_min_epochs": 35,
+    "balance_sampler": true,
+    "class_weights": null,
+    "label_smoothing": 0.05,
+    "grad_clip_norm": 5.0,
+    "monitor_metric": "val_macro_f1_calibrated",
+    "calibrate_threshold": true,
+    "use_calibrated_threshold_in_generalization": true,
+    "warn_train_label_config_nmi": 0.8,
+    "fail_train_label_config_nmi": 1.01,
+    "best_model_name": "best_model.pth",
+    "log_dir": "./logs",
+    "model_dir": "./checkpoints",
+    "amp": true
+  }
+}

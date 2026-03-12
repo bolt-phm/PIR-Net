@@ -1,23 +1,25 @@
-﻿# BoltDetectionGUI Release Notes
+# BoltDetectionGUI Release Notes
 
-## Package
-- File: `BoltDetection_setup.exe`
-- Type: Windows installer
+## Package Information
 
-## Integrity
-- Verify checksum using `SHA256SUMS.txt` before installation.
+1. Artifact: `BoltDetection_setup.exe`
+2. Type: Windows installer
+3. Verification file: `SHA256SUMS.txt`
 
-## Scope
-This validation assistant focuses on:
-- project configuration,
-- Python bridge execution,
-- assisted batch validation/inference workflow,
-- optional USB mode integration workflow.
+## Functional Scope
 
-It is designed for assisted verification and demonstration, rather than replacing a full production DAQ/runtime pipeline.
+This release supports:
 
-## Known prerequisite
-The selected project path must contain:
-- `config.json`
-- `inference_engine.py`
-- trained model weights in `checkpoints/...`
+1. Project configuration loading.
+2. Python bridge invocation for inference workflows.
+3. Assisted batch validation use cases.
+
+The GUI is an auxiliary validation interface and does not replace a full production DAQ/runtime stack.
+
+## Runtime Prerequisites
+
+The configured project directory must include:
+
+1. `config.json`
+2. `inference_engine.py`
+3. Trained model weights under `checkpoints/...`

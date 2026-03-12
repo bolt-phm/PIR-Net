@@ -14,6 +14,7 @@ items = [
     ('304', 'ResNet-18\nspectrogram', ROOT / 'baselines' / 'C' / 'baselines' / '304' / 'logs' / 'metrics_clean.json'),
     ('305', 'EfficientNet-B0\nspectrogram', ROOT / 'baselines' / 'D' / 'baselines' / '305' / 'logs' / 'metrics_clean.json'),
     ('306', 'Transformer\nencoder', ROOT / 'baselines' / 'B' / 'baselines' / '306' / 'logs' / 'metrics_clean.json'),
+    ('307', 'CNN-BiLSTM\nAttention', ROOT / 'baselines' / '307' / 'logs' / 'metrics_clean.json'),
 ]
 
 labels, values, colors = [], [], []
@@ -21,7 +22,7 @@ for exp, label, path in items:
     data = json.loads(path.read_text(encoding='utf-8'))
     labels.append(f'{exp}\n{label}')
     values.append(data['accuracy_pct'])
-    colors.append('#2A6F97' if exp in {'301', '302', '303', '306'} else '#C97C5D')
+    colors.append('#2A6F97' if exp in {'301', '302', '303', '306', '307'} else '#C97C5D')
 
 plt.figure(figsize=(10.5, 5.5))
 bars = plt.bar(labels, values, color=colors, edgecolor='black', linewidth=0.8)

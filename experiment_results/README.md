@@ -5,7 +5,8 @@ This folder provides a structured, open-source-ready result bundle aligned with 
 ## Scope
 
 - PIR-Net ablation experiments: 022, 122, 202, 212, 220, 221, 222
-- External baselines: 301, 302, 303, 304, 305, 306
+- External baselines: 301, 302, 303, 304, 305, 306, 307
+- Zenodo cross-condition benchmarks: 401, 402, 403, 404
 
 ## Included Files
 
@@ -19,9 +20,9 @@ This folder provides a structured, open-source-ready result bundle aligned with 
 
 ## Current Snapshot Summary
 
-- Total records: 75
-- Available records: 43
-- Expected-but-missing records: 32
+- Total records: 100
+- Available records: 53
+- Expected-but-missing records: 47
 
 Expected-but-missing entries are placeholders for runtime outputs that are not currently tracked in this repository snapshot
 (for example, full training logs and model checkpoints).

@@ -11,7 +11,7 @@ def run_cmd(cmd, cwd):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--experiments", nargs="+", default=["301", "302", "303", "304", "305", "306"])
+    parser.add_argument("--experiments", nargs="+", default=["301", "302", "303", "304", "305", "306", "307"])
     parser.add_argument("--with_generalization", action="store_true")
     args = parser.parse_args()
 

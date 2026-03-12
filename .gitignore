@@ -17,6 +17,7 @@ __pycache__/
 # OS/editor
 .DS_Store
 Thumbs.db
+.tmp/
 
 # GUI build artifacts
 BoltDetectionGUI/src/bin/

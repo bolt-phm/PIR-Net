@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-12T16:55:41.172191+00:00",
+  "generated_at_utc": "2026-03-12T23:15:32.973817+00:00",
   "dataset": {
     "archive": "data.zip",
     "distribution": "Git LFS",
@@ -25,9 +25,19 @@
         "303",
         "304",
         "305",
-        "306"
+        "306",
+        "307"
       ],
       "description": "Unified external baselines without PIR-specific preprocessing"
+    },
+    "zenodo_generalization": {
+      "ids": [
+        "401",
+        "402",
+        "403",
+        "404"
+      ],
+      "description": "Cross-condition benchmark on external public dataset (Zenodo 15516419)"
     }
   },
   "artifact_policy": {

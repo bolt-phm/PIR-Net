@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+
+**/logs/
+**/checkpoints/
+results/
+
+data/zenodo_15516419/
+

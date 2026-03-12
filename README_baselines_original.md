@@ -1,9 +1,9 @@
-﻿# Baseline Suite Notes (Legacy Entry)
+# Baseline Documentation Redirect
 
-This file is retained for backward compatibility.
+This file is retained as a compatibility redirect for older links.
 
-Please use the canonical baseline documentation:
+Use the maintained baseline documentation at:
 
 - `experiments/external_baselines/README.md`
 
-The current baseline suite includes 1D waveform, CNN spectrogram, and transformer-based models, all configured under a unified reproducibility protocol.
+That document contains the current model list, protocol constraints, and execution instructions.

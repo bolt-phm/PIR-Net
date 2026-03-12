@@ -1,0 +1,13 @@
+{
+  "experiment_id": "404",
+  "group": "zenodo_generalization",
+  "status": "template",
+  "metrics": {
+    "best_val_accuracy": null,
+    "test_accuracy": null,
+    "macro_f1": null,
+    "weighted_f1": null,
+    "val_loss": null
+  },
+  "notes": "Fill with Zenodo benchmark metrics using the same reporting schema."
+}

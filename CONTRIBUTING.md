@@ -1,39 +1,53 @@
-# Contributing
+# Contributing to PIR-Net
 
-Thank you for your interest in improving PIR-Net.
+Thank you for your interest in contributing to this project.
 
-## Development Workflow
+## 1. Scope of Contributions
 
-1. Fork the repository and create a feature branch from `main`.
-2. Keep changes scoped to a single purpose (code, docs, or tooling).
-3. Run local checks before opening a pull request:
+Contributions are welcome in the following areas:
+
+1. Model implementation and training stability.
+2. Reproducibility tooling and documentation.
+3. Baseline and generalization benchmarking pipelines.
+4. Validation GUI integration and usability.
+
+## 2. Development Workflow
+
+1. Create a feature branch from `main`.
+2. Keep each pull request focused on a single technical objective.
+3. Include clear validation evidence for behavioral changes.
+4. Update related documentation in the same pull request.
+
+## 3. Local Validation Before PR
+
+Run the following checks:
 
 ```bash
 python -m compileall -q .
 python -m tools.smoke_test --mode all --exp_dir experiments/pirnet_ablation/222
 ```
 
-4. Open a pull request with a clear summary, rationale, and validation evidence.
+If your contribution changes experiment execution paths, also run the affected experiment-level smoke training command(s).
 
-## Commit Message Convention
+## 4. Commit Message Convention
 
-Use concise, professional commit messages, for example:
+Use concise and professional Conventional Commit-style messages:
 
-- `feat: add baseline model configuration`
-- `fix: correct config parsing for utf-8-sig`
-- `docs: update reproducibility notes`
-- `chore: auxiliary GUI`
+1. `feat: add zenodo cross-condition launcher`
+2. `fix: resolve config utf-8 parsing issue`
+3. `docs: standardize experiment execution guide`
+4. `chore: update baseline script defaults`
 
-## Coding Standards
+## 5. Engineering Standards
 
-- Use Python 3.10+ compatible syntax.
-- Preserve existing experiment directory structure.
-- Avoid introducing PIR-specific preprocessing into external baseline pipelines.
-- Keep public documentation synchronized with code changes.
+1. Preserve existing experiment directory structure.
+2. Do not inject PIR-specific preprocessing into external baselines.
+3. Avoid committing generated runtime artifacts (`logs/`, `checkpoints/`, `results/`).
+4. Keep public-facing text precise, technical, and reproducible.
 
-## Pull Request Checklist
+## 6. Pull Request Checklist
 
-- [ ] Code builds and smoke checks pass locally.
-- [ ] Documentation is updated when behavior changes.
-- [ ] New scripts include minimal usage instructions.
-- [ ] No dataset binaries are committed outside approved LFS artifacts.
+- [ ] Code compiles and smoke checks pass locally.
+- [ ] Documentation is updated for any user-visible behavior change.
+- [ ] New scripts include usage instructions.
+- [ ] No private data or credentials are included.

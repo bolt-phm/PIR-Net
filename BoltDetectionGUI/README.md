@@ -1,28 +1,30 @@
-﻿# BoltDetectionGUI (Auxiliary GUI)
+# BoltDetectionGUI (Auxiliary Validation Tool)
 
-This folder provides an auxiliary GUI for PIR-Net validation and demonstration. It supports configuration management and Python-bridge execution, and is not a standalone DAQ/runtime system.
+`BoltDetectionGUI` is a Windows desktop assistant for PIR-Net validation workflows.  
+It is designed for configuration management and Python-bridge inference orchestration, not as a standalone DAQ runtime.
 
-## Folder Layout
+## 1. Contents
 
-- `src/`: C# WinForms source code (.NET 10, Windows)
-- `release/BoltDetection_setup.exe`: installer package for end users
-- `release/SHA256SUMS.txt`: checksum file for installer verification
+1. `src/`: C# WinForms source code (.NET 10).
+2. `release/BoltDetection_setup.exe`: installer package.
+3. `release/SHA256SUMS.txt`: checksum file for installer verification.
 
-## Quick Install (End Users)
+## 2. End-User Installation
 
-1. Go to `release/`.
-2. Verify checksum (optional but recommended):
-   - PowerShell: `Get-FileHash .\BoltDetection_setup.exe -Algorithm SHA256`
+1. Navigate to `release/`.
+2. Verify installer integrity:
+   - PowerShell: `Get-FileHash .\\BoltDetection_setup.exe -Algorithm SHA256`
    - Compare with `SHA256SUMS.txt`.
-3. Run `BoltDetection_setup.exe` and complete installation.
+3. Run `BoltDetection_setup.exe`.
 
-## Build From Source (Developers)
+## 3. Build from Source
 
 Requirements:
-- Windows 10/11
-- .NET SDK 10.0
 
-Build commands:
+1. Windows 10/11
+2. .NET SDK 10.0
+
+Commands:
 
 ```powershell
 cd BoltDetectionGUI/src
@@ -30,18 +32,16 @@ dotnet restore
 dotnet build -c Release
 ```
 
-Run directly:
+Run:
 
 ```powershell
 dotnet run
 ```
 
-## Runtime Bridge Requirement
+## 4. Runtime Bridge Requirements
 
-The GUI calls a Python bridge script named `inference_engine.py` in the selected project path.
-This repository provides that script at the repository root. Make sure your GUI "Project Path"
-points to a folder containing:
+The selected project path must contain:
 
-- `config.json`
-- `inference_engine.py`
-- trained weights in `checkpoints/...`
+1. `config.json`
+2. `inference_engine.py`
+3. Model weights under `checkpoints/...`
