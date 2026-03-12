@@ -1,39 +1,27 @@
 ﻿# PIR-Net
 
-Physics-informed deep learning for bolt loosening detection from 1 MHz vibration signals.
+Physics-informed deep learning framework for bolt loosening detection from 1 MHz vibration signals.
 
-This repository is organized for **two real use cases**:
+## 1. Overview
 
-1. **Research reproduction**: run the full PIR-Net ablation suite and reviewer-requested baselines.
-2. **Validation assistance**: use a Windows GUI helper tool (`BoltDetectionGUI`) for config editing and assisted validation workflows.
+This repository provides the codebase used for PIR-Net experiments and reviewer-requested baseline comparisons in bolt loosening diagnosis. It is organized for reproducible research, controlled baseline evaluation, and assisted validation via a lightweight Windows GUI.
 
----
+The repository intentionally excludes raw datasets from version control.
 
-## Why this repo exists (pain points we solve)
+## 2. Scope
 
-If you have ever tried to reproduce bolt-loosening papers, you probably met these problems:
+This project covers three technical workflows:
 
-- Scripts are spread across many folders and difficult to map to paper experiments.
-- Data preprocessing differs silently between methods, making comparisons unfair.
-- Reviewer-requested baselines are missing or not runnable.
-- New users cannot tell what to run first.
-- Users need a simple GUI for config + validation, not only command-line scripts.
+1. PIR-Net ablation and main-model training/evaluation.
+2. External baseline benchmarking (configured without PIR-specific preprocessing to preserve baseline fidelity).
+3. Assisted validation using `BoltDetectionGUI` as an orchestration front-end for Python inference.
 
-This repo addresses those issues by:
-
-- grouping experiments by type,
-- explicitly separating **PIR-Net experiments** and **non-PIR baselines**,
-- providing a Python bridge for GUI workflows,
-- adding a beginner-friendly usage guide,
-- shipping a Windows installer for the helper GUI.
-
----
-
-## Repository layout
+## 3. Repository Structure
 
 ```text
 PIRNet_OpenSource_Root/
 ├─ README.md
+├─ LICENSE
 ├─ docs/
 │  └─ USAGE_GUIDE.md
 ├─ experiments/
@@ -46,59 +34,72 @@ PIRNet_OpenSource_Root/
 │     ├─ scripts/
 │     └─ run_baselines.py
 ├─ BoltDetectionGUI/
-│  ├─ src/                          # C# source code (.NET WinForms)
+│  ├─ src/
 │  ├─ release/
-│  │  ├─ BoltDetection_setup.exe    # installable helper tool package
+│  │  ├─ BoltDetection_setup.exe
 │  │  └─ SHA256SUMS.txt
 │  └─ README.md
-├─ inference_engine.py              # GUI bridge script (required by GUI)
 ├─ tools/
 │  ├─ update_data_dir.py
 │  ├─ run_paper_pipeline.py
 │  └─ publish_gui_release.ps1
-└─ paper_support/
-   ├─ py/
-   └─ py_round2_figures/
+├─ inference_engine.py
+├─ train.py
+├─ generalization.py
+└─ dataset.py
 ```
 
----
+## 4. System Requirements
 
-## Quick start for beginners (0-to-run)
+Recommended runtime:
 
-## Step 1: Prepare environment
+- Python 3.10+ (validated with 3.12)
+- CUDA-capable GPU for training
+- PyTorch, torchvision, torchaudio
+- numpy, scipy, pandas, scikit-learn
+- matplotlib, seaborn, opencv-python
+- tqdm, tensorboard
 
-### Python environment
-
-Recommended: Python 3.10+ (tested with 3.12), PyTorch with CUDA.
+Example installation:
 
 ```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 pip install numpy scipy pandas scikit-learn matplotlib seaborn opencv-python tqdm tensorboard
 ```
 
-### Dataset
+## 5. Dataset Preparation
 
-This repository is **code-only**. Dataset files are not bundled.
+Datasets are not distributed in this repository. Prepare a directory containing class subfolders (default: `case1` to `case16`) and `.npy` samples.
 
-Expected data format:
-- class folders (`case1` ... `case16`)
-- each folder contains `.npy` run files
+Reference layout:
 
----
+```text
+<YOUR_DATA_DIR>/
+├─ case1/
+├─ case2/
+...
+└─ case16/
+```
 
-## Step 2: Point all experiments to your dataset path
+## 6. Configure Data Paths
 
-From repository root:
+Before training, update all experiment configs:
 
 ```bash
 python tools/update_data_dir.py --root . --data_dir /absolute/path/to/your/data
 ```
 
-This updates `data.data_dir` in all experiment `config.json` files.
+Optional (if generalization path is required):
 
----
+```bash
+python tools/update_data_dir.py --root . --data_dir /absolute/path/to/your/data --generalization_dir /absolute/path/to/generalization_data
+```
 
-## Step 3A: Run PIR-Net main experiment (example: Exp 222)
+## 7. Running Experiments
+
+### 7.1 PIR-Net Experiments
+
+Single experiment example (`222`):
 
 ```bash
 cd experiments/pirnet_ablation/222
@@ -106,132 +107,111 @@ python train.py --exp_dir .
 python generalization.py --exp_dir .
 ```
 
----
+### 7.2 External Baselines (301-306)
 
-## Step 3B: Run external baselines (301-306)
+Sequential run:
 
 ```bash
 cd experiments/external_baselines
 python run_baselines.py --experiments 301 302 303 304 305 306
 ```
 
-Optional with post-evaluation:
+With generalization:
 
 ```bash
 python run_baselines.py --experiments 301 302 303 304 305 306 --with_generalization
 ```
 
----
-
-## Step 4: (Optional) Distributed multi-server execution
+### 7.3 Distributed Multi-Server Execution
 
 PIR-Net split scripts:
+
 - `experiments/pirnet_ablation/scripts/serverA.sh`
 - `experiments/pirnet_ablation/scripts/serverB.sh`
 - `experiments/pirnet_ablation/scripts/serverC.sh`
 - `experiments/pirnet_ablation/scripts/serverD.sh`
 
-Baseline split scripts:
+Baselines split scripts:
+
 - `experiments/external_baselines/scripts/serverA.sh`
 - `experiments/external_baselines/scripts/serverB.sh`
 - `experiments/external_baselines/scripts/serverC.sh`
 - `experiments/external_baselines/scripts/serverD.sh`
 
-See [docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md) for full commands.
+Detailed command examples are provided in `docs/USAGE_GUIDE.md`.
 
----
+## 8. Output Artifacts
 
-## BoltDetectionGUI helper tool
+Typical generated outputs include:
 
-`BoltDetectionGUI` is a Windows **validation assistant** for PIR-Net workflows. It launches Python-side checks, manages run parameters, and displays validation results. It is not a standalone DAQ/runtime engine implemented entirely in C#.
+- model checkpoints
+- training/validation logs
+- confusion matrices and generalization reports
+- merged baseline result summaries
 
-- project config editing,
-- selecting Python runtime,
-- assisted batch validation/inference runs,
-- optional USB-triggered validation workflow.
+Output paths are controlled by each experiment's `config.json`.
 
-## Install GUI
+## 9. BoltDetectionGUI (Validation Assistant)
 
-Use installer:
+`BoltDetectionGUI` is an auxiliary Windows validation assistant. It is designed to simplify project configuration and invoke Python-side inference/validation workflows.
 
-- [BoltDetectionGUI/release/BoltDetection_setup.exe](BoltDetectionGUI/release/BoltDetection_setup.exe)
+Important scope clarification:
 
-Verify checksum:
+- It is an assisted verification interface.
+- It is not a standalone DAQ/runtime engine.
 
-- [BoltDetectionGUI/release/SHA256SUMS.txt](BoltDetectionGUI/release/SHA256SUMS.txt)
+Installer and integrity files:
 
-## Important runtime requirement
+- `BoltDetectionGUI/release/BoltDetection_setup.exe`
+- `BoltDetectionGUI/release/SHA256SUMS.txt`
 
-The GUI expects a Python script named `inference_engine.py` in the selected project path.
-This repository already includes it at root:
+Runtime requirement:
 
-- [inference_engine.py](inference_engine.py)
+- The selected project path must contain `config.json`, `inference_engine.py`, and trained checkpoints.
 
-So for easiest usage, in GUI set **Project Path** to this repository root (or another folder containing `config.json` + `inference_engine.py`).
+## 10. Publishing GUI Installer to GitHub Release
 
----
+Manual approach:
 
-## Publish GUI installer as GitHub release asset
+1. Create a tag and release on GitHub.
+2. Upload installer assets from `BoltDetectionGUI/release/`.
 
-You have two options:
-
-### Option A: Manual on GitHub web
-
-1. Create tag/release on GitHub.
-2. Upload:
-   - `BoltDetectionGUI/release/BoltDetection_setup.exe`
-   - `BoltDetectionGUI/release/SHA256SUMS.txt`
-
-### Option B: GitHub CLI script
+Scripted approach (GitHub CLI required):
 
 ```powershell
-pwsh tools/publish_gui_release.ps1 -Tag v1.0.0 -Title "BoltDetectionGUI v1.0.0" -Notes "Windows installer for BoltDetectionGUI"
+pwsh tools/publish_gui_release.ps1 -Tag v1.0.0 -Title "BoltDetectionGUI v1.0.0" -Notes "Windows installer for assisted validation"
 ```
 
-Prerequisite: `gh` installed and authenticated (`gh auth login`).
+## 11. Reproducibility Notes
 
----
+- PIR-Net and external baselines are intentionally separated.
+- Baseline experiments are configured to avoid PIR-specific preprocessing.
+- Any deviation from default preprocessing or split strategy should be documented in reports.
 
-## Reproducibility notes
+## 12. Troubleshooting
 
-- PIR-Net and external baselines are separated by design.
-- External baselines are configured to avoid PIR-specific preprocessing, matching reviewer constraints.
-- If you change preprocessing policy, document it in your experiment report.
-
----
-
-## Common issues and fixes
-
-### 1) `Repository not found` when pushing
-- Ensure remote URL and GitHub account are correct.
-- Re-authenticate credentials if needed.
-
-### 2) `dubious ownership` in Git
+### 12.1 Git safe-directory warning
 
 ```bash
 git config --global --add safe.directory E:/Desktop/GPT_Codex/PIRNet_OpenSource_Root
 ```
 
-### 3) JSON BOM error (`Unexpected UTF-8 BOM`)
-- Keep configs in UTF-8/UTF-8-SIG.
-- This repo already uses BOM-tolerant loading where needed.
+### 12.2 JSON BOM parsing errors
 
-### 4) Linux script shebang errors
-- Convert scripts to LF line endings if needed.
+Ensure `config.json` files are saved in UTF-8 or UTF-8-SIG.
 
-### 5) Low GPU utilization
-- Increase `batch_size` and `num_workers` in each experiment config according to your VRAM/CPU.
+### 12.3 Linux shebang issues
 
----
+If shell scripts fail with `/usr/bin/env` errors, convert line endings to LF.
 
-## License
+### 12.4 Low GPU utilization
 
-MIT License. See [LICENSE](LICENSE).
+Increase `batch_size` and `num_workers` in experiment configs according to hardware limits.
 
----
+## 13. License
 
-## Citation
+This repository is released under the MIT License. See `LICENSE` for details.
 
-If this repository helps your research or deployment, please cite your PIR-Net paper and this repository URL.
+## 14. Citation
 
-
+If you use this codebase in academic work, please cite the PIR-Net paper and include this repository URL.
