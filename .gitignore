@@ -17,3 +17,8 @@ __pycache__/
 # OS/editor
 .DS_Store
 Thumbs.db
+
+# GUI build artifacts
+BoltDetectionGUI/src/bin/
+BoltDetectionGUI/src/obj/
+*.csproj.user
