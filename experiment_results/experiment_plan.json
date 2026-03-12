@@ -1,0 +1,46 @@
+{
+  "generated_at_utc": "2026-03-12T16:55:41.172191+00:00",
+  "dataset": {
+    "archive": "data.zip",
+    "distribution": "Git LFS",
+    "source": "self-collected FPGA-based impact-vibration acquisition"
+  },
+  "experiment_groups": {
+    "pirnet_ablation": {
+      "ids": [
+        "022",
+        "122",
+        "202",
+        "212",
+        "220",
+        "221",
+        "222"
+      ],
+      "description": "PIR-Net ablation and main-model settings"
+    },
+    "external_baselines": {
+      "ids": [
+        "301",
+        "302",
+        "303",
+        "304",
+        "305",
+        "306"
+      ],
+      "description": "Unified external baselines without PIR-specific preprocessing"
+    }
+  },
+  "artifact_policy": {
+    "required_for_release": [
+      "config snapshots",
+      "metrics summary files",
+      "confusion matrices",
+      "aggregate figures"
+    ],
+    "optional_for_release": [
+      "best checkpoints",
+      "full training logs",
+      "runtime traces"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "experiment_id": "220",
+  "group": "pirnet_ablation",
+  "status": "template",
+  "metrics": {
+    "best_val_accuracy": null,
+    "test_accuracy": null,
+    "macro_f1": null,
+    "weighted_f1": null,
+    "val_loss": null
+  },
+  "notes": "Fill with finalized values exported from training/evaluation logs."
+}

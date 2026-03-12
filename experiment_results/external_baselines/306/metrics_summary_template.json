@@ -1,0 +1,13 @@
+{
+  "experiment_id": "306",
+  "group": "external_baselines",
+  "status": "template",
+  "metrics": {
+    "best_val_accuracy": null,
+    "test_accuracy": null,
+    "macro_f1": null,
+    "weighted_f1": null,
+    "val_loss": null
+  },
+  "notes": "Fill with baseline run metrics using the same reporting schema as PIR-Net."
+}
