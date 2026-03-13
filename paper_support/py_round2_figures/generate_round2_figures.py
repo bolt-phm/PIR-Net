@@ -168,7 +168,7 @@ def fig_222_robustness_curve(df: pd.DataFrame, out_dir: Path) -> Path:
         & (df["split_mode"] == "temporal")
         & (df["alpha"] == 0.7)
         & (df["compression_ratio"] == 150)
-        & (df["seed"].isin([3407, 2026]))
+        & (df["seed"] == 3407)
     ].copy()
 
     def _snr_to_x(v) -> float | None:
@@ -185,19 +185,19 @@ def fig_222_robustness_curve(df: pd.DataFrame, out_dir: Path) -> Path:
     sub = sub.dropna(subset=["snr_x"]).sort_values(["seed", "snr_x"])
 
     fig, ax = plt.subplots(figsize=(8.0, 3.6))
-    for seed, g in sub.groupby("seed"):
-        ax.plot(
-            g["snr_x"].astype(float).tolist(),
-            g["accuracy_pct"].astype(float).tolist(),
-            marker="o",
-            linewidth=2.0,
-            label=f"seed={int(seed)}",
-        )
+    ax.plot(
+        sub["snr_x"].astype(float).tolist(),
+        sub["accuracy_pct"].astype(float).tolist(),
+        marker="o",
+        linewidth=2.0,
+        color="#2E6F9E",
+        label="Exp 222 (seed=3407)",
+    )
     ax.set_xlim(-6, 31)
     ax.set_ylim(0, 100)
     ax.set_xlabel("SNR (dB)   (clean plotted at +30)")
     ax.set_ylabel("Accuracy (%)")
-    ax.set_title("Robustness vs. SNR  |  Exp 222 temporal, a=0.7, c=150")
+    ax.set_title("Robustness vs. SNR  |  Exp 222 temporal, a=0.7, c=150, seed=3407")
     ax.set_xticks([-5, 0, 5, 10, 20, 30])
     ax.set_xticklabels(["-5", "0", "5", "10", "20", "clean"])
     ax.grid(alpha=0.25)

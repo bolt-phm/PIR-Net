@@ -139,6 +139,53 @@ class SignalTransformer1D(nn.Module):
         return self.head(x)
 
 
+class CNNBiLSTMAttn1D(nn.Module):
+    def __init__(self, num_classes: int, dropout: float = 0.3):
+        super().__init__()
+        self.frontend = nn.Sequential(
+            nn.Conv1d(1, 32, kernel_size=9, stride=2, padding=4, bias=False),
+            nn.BatchNorm1d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Conv1d(32, 64, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.BatchNorm1d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Conv1d(64, 128, kernel_size=5, stride=1, padding=2, bias=False),
+            nn.BatchNorm1d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+        )
+        self.rnn = nn.LSTM(
+            input_size=128,
+            hidden_size=128,
+            num_layers=2,
+            dropout=0.2,
+            bidirectional=True,
+            batch_first=True,
+        )
+        self.attn = nn.Sequential(
+            nn.Linear(256, 128),
+            nn.Tanh(),
+            nn.Linear(128, 1),
+        )
+        self.head = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(256, num_classes),
+        )
+
+    def forward(self, _img, sig):
+        if sig.dim() == 2:
+            sig = sig.unsqueeze(1)
+        x = self.frontend(sig)          # [B, C, T]
+        x = x.transpose(1, 2)           # [B, T, C]
+        x, _ = self.rnn(x)              # [B, T, 2H]
+        w = self.attn(x).squeeze(-1)    # [B, T]
+        w = torch.softmax(w, dim=1).unsqueeze(-1)
+        x = torch.sum(x * w, dim=1)     # [B, 2H]
+        return self.head(x)
+
+
 class ResNet18Spectrogram(nn.Module):
     def __init__(self, num_classes: int, pretrained: bool = False):
         super().__init__()
@@ -187,6 +234,8 @@ def build_model(cfg: dict) -> nn.Module:
         return ResNet1D(num_classes=num_classes, dropout=dropout)
     if name == "signal_transformer":
         return SignalTransformer1D(num_classes=num_classes, seq_len=seq_len)
+    if name == "signal_cnn_bilstm_attn":
+        return CNNBiLSTMAttn1D(num_classes=num_classes, dropout=dropout)
     if name == "spec_resnet18":
         return ResNet18Spectrogram(num_classes=num_classes, pretrained=pretrained)
     if name == "spec_efficientnet_b0":

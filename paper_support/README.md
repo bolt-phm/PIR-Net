@@ -4,9 +4,9 @@ This directory contains reproducibility-oriented assets used for manuscript figu
 
 ## Contents
 
-1. `py_round2_figures/`: Python scripts for figure/table generation.
+1. `py_round2_figures/`: Python scripts for publication figure/table generation (historical folder name retained for compatibility).
 2. `figures/`: generated figure assets used by the manuscript workflow.
-3. `py/`: supplementary visualization and slide-building utilities.
+3. `py/`: supplementary visualization utilities.
 
 ## Notes
 
