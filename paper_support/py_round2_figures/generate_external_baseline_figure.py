@@ -33,10 +33,5 @@ plt.grid(axis='y', linestyle='--', alpha=0.25)
 
 for bar, v in zip(bars, values):
     plt.text(bar.get_x() + bar.get_width() / 2, v + 1.2, f'{v:.2f}', ha='center', va='bottom', fontsize=9)
-
-plt.text(0.01, 0.98, 'Waveform baselines: blue   Spectrogram baselines: brown',
-         transform=plt.gca().transAxes, ha='left', va='top', fontsize=9)
-plt.text(0.01, 0.91, 'Protocol note: all baselines avoid PIR preprocessing; test set n = 22,640',
-         transform=plt.gca().transAxes, ha='left', va='top', fontsize=9)
 plt.tight_layout()
 plt.savefig(FIG_DIR / 'fig_rev2_external_baselines_clean.png', dpi=220)
