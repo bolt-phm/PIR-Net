@@ -100,24 +100,27 @@ def run_epoch(
             if batch is None:
                 continue
             img, sig, lbl = batch[:3]
-            img = img.to(device, non_blocking=True)
+            if img is not None:
+                img = img.to(device, non_blocking=True)
             sig = sig.to(device, non_blocking=True)
             lbl = lbl.to(device, non_blocking=True)
 
             if is_train:
                 optimizer.zero_grad(set_to_none=True)
-
-            with autocast(enabled=amp_enabled):
-                logits = model(img, sig)
-                loss = criterion(logits, lbl)
-
-            if is_train:
+                with autocast(enabled=amp_enabled):
+                    logits = model(img, sig)
+                    loss = criterion(logits, lbl)
                 scaler.scale(loss).backward()
                 if grad_clip_norm > 0:
                     scaler.unscale_(optimizer)
                     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=grad_clip_norm)
                 scaler.step(optimizer)
                 scaler.update()
+            else:
+                with torch.inference_mode():
+                    with autocast(enabled=amp_enabled):
+                        logits = model(img, sig)
+                        loss = criterion(logits, lbl)
 
             preds = torch.argmax(logits, dim=1)
             total_loss += float(loss.item()) * lbl.size(0)
@@ -138,13 +141,16 @@ def run_epoch(
 def collect_logits_and_labels(model, loaders, device):
     model.eval()
     all_logits, y_true = [], []
-    with torch.no_grad():
+    with torch.inference_mode():
         for loader in loaders.values():
             for batch in loader:
                 if batch is None:
                     continue
                 img, sig, lbl = batch[:3]
-                logits = model(img.to(device, non_blocking=True), sig.to(device, non_blocking=True))
+                if img is not None:
+                    img = img.to(device, non_blocking=True)
+                sig = sig.to(device, non_blocking=True)
+                logits = model(img, sig)
                 all_logits.append(logits.detach().cpu())
                 y_true.extend(lbl.numpy().tolist())
 

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import numpy as np
 import torch
 from scipy.io import loadmat
+from scipy.signal import spectrogram
 from torch.utils.data import DataLoader, Dataset, Subset, WeightedRandomSampler
 
 warnings.filterwarnings("ignore")
@@ -192,6 +193,56 @@ def _augment_signal(sig: np.ndarray, aug_cfg: dict) -> np.ndarray:
     return out.astype(np.float32)
 
 
+def _resize_2d(arr: np.ndarray, out_hw: tuple[int, int]) -> np.ndarray:
+    h, w = int(out_hw[0]), int(out_hw[1])
+    ten = torch.from_numpy(arr.astype(np.float32))[None, None, :, :]
+    out = torch.nn.functional.interpolate(ten, size=(h, w), mode="bilinear", align_corners=False)
+    return out[0, 0].cpu().numpy().astype(np.float32)
+
+
+def _normalize_map01(arr: np.ndarray) -> np.ndarray:
+    lo = float(arr.min())
+    hi = float(arr.max())
+    if hi - lo < 1e-8:
+        return np.zeros_like(arr, dtype=np.float32)
+    return ((arr - lo) / (hi - lo + 1e-8)).astype(np.float32)
+
+
+def _compress_restore_1d(x: np.ndarray, mode: str, ratio: int, alpha: float) -> np.ndarray:
+    n = int(len(x))
+    if n <= 2 or ratio <= 1 or mode == "none":
+        return x.astype(np.float32)
+
+    target = max(2, n // int(ratio))
+    chunks = np.array_split(x, target)
+    comp = np.zeros((len(chunks),), dtype=np.float32)
+    for i, ch in enumerate(chunks):
+        if ch.size == 0:
+            comp[i] = 0.0
+            continue
+        if mode == "average":
+            v = float(np.mean(ch))
+        elif mode == "max":
+            idx = int(np.argmax(np.abs(ch)))
+            v = float(ch[idx])
+        elif mode == "decimate":
+            v = float(ch[0])
+        elif mode == "physics":
+            # Physics-aware proxy: preserve sparse impulsive peaks while keeping the trend term.
+            idx = int(np.argmax(np.abs(ch)))
+            peak = float(ch[idx])
+            mean = float(np.mean(ch))
+            v = float((1.0 - alpha) * mean + alpha * peak)
+        else:
+            v = float(np.mean(ch))
+        comp[i] = v
+
+    src_pos = np.linspace(0.0, 1.0, len(comp), dtype=np.float32)
+    dst_pos = np.linspace(0.0, 1.0, n, dtype=np.float32)
+    restored = np.interp(dst_pos, src_pos, comp).astype(np.float32)
+    return restored
+
+
 @dataclass
 class SegmentMeta:
     path: str
@@ -234,6 +285,42 @@ class ZenodoDynamicDataset(Dataset):
         self.global_scale = float(data_cfg.get("global_scale", 1.0))
         h, w = data_cfg.get("image_size", [32, 32])
         self.image_size = (int(h), int(w))
+        self.image_out_channels = int(data_cfg.get("image_out_channels", 3))
+        self.use_pseudo_image = bool(data_cfg.get("use_pseudo_image", False))
+        # For signal-only models, optionally skip image tensor creation/transfers entirely.
+        self.omit_image_tensor_when_disabled = bool(data_cfg.get("omit_image_tensor_when_disabled", False))
+        self.image_mode = str(data_cfg.get("image_mode", "stft_rgb")).lower()
+        self.pseudo_image_channels = [int(x) for x in data_cfg.get("pseudo_image_channels", [0, 1, 2])]
+        self.stft_n_fft = int(data_cfg.get("stft_n_fft", 128))
+        self.stft_hop_length = int(data_cfg.get("stft_hop_length", 32))
+
+        res_cfg = data_cfg.get("resampling", {})
+        self.resampling_enabled = bool(res_cfg.get("enabled", False))
+        self.resampling_mode = str(res_cfg.get("mode", "none")).lower()
+        self.resampling_ratio = int(res_cfg.get("compression_ratio", 1))
+        self.resampling_alpha = float(res_cfg.get("alpha", 0.7))
+        self.signal_aug_cfg = self.cfg.get("augment", {}).get("signal", {})
+
+        # Optional RAM cache for high-throughput training/evaluation.
+        # Default is disabled to preserve historical behavior.
+        ram_cfg = data_cfg.get("ram_cache", {})
+        self.ram_cache_enabled = bool(ram_cfg.get("enabled", False))
+        self.ram_cache_dtype = str(ram_cfg.get("dtype", "float16")).lower()
+        if self.ram_cache_dtype not in {"float16", "float32"}:
+            self.ram_cache_dtype = "float16"
+        self.ram_cache_log_interval = max(0, int(ram_cfg.get("log_interval", 500)))
+        self.cache_train_signal = bool(ram_cfg.get("cache_train_signal", True))
+        self.cache_train_image = bool(ram_cfg.get("cache_train_image", False))
+        self.cache_eval_signal = bool(ram_cfg.get("cache_eval_signal", True))
+        self.cache_eval_image = bool(ram_cfg.get("cache_eval_image", True))
+        self.allow_train_image_cache_with_augmentation = bool(
+            ram_cfg.get("allow_train_image_cache_with_augmentation", False)
+        )
+        self.train_uses_augmentation = bool(self.is_train and self.signal_aug_cfg.get("use_augment", False))
+
+        self._cached_signal: np.ndarray | None = None
+        self._cached_image: np.ndarray | None = None
+        self._ram_cache_silent = str(os.environ.get("RAM_CACHE_SILENT", "0")).strip().lower() in {"1", "true", "yes", "on"}
 
         if override_test_ids is None:
             key = f"{split}_test_ids"
@@ -286,6 +373,63 @@ class ZenodoDynamicDataset(Dataset):
             )
 
         # Keep deterministic segment order. DataLoader shuffle/sampler controls stochasticity.
+        self._build_ram_cache_if_enabled()
+
+    def _cache_dtype_np(self):
+        return np.float16 if self.ram_cache_dtype == "float16" else np.float32
+
+    def _build_ram_cache_if_enabled(self):
+        if not self.ram_cache_enabled or len(self.indices) == 0:
+            return
+
+        split_cache_signal = (self.is_train and self.cache_train_signal) or ((not self.is_train) and self.cache_eval_signal)
+        split_cache_image = (self.is_train and self.cache_train_image) or ((not self.is_train) and self.cache_eval_image)
+
+        if self.is_train and split_cache_image and self.train_uses_augmentation and not self.allow_train_image_cache_with_augmentation:
+            warnings.warn(
+                "ram_cache.cache_train_image=True but train augmentation is enabled. "
+                "To preserve strict image-signal consistency under augmentation, train image cache is disabled. "
+                "Set ram_cache.allow_train_image_cache_with_augmentation=true to force-enable it.",
+                RuntimeWarning,
+            )
+            split_cache_image = False
+
+        split_cache_image = bool(split_cache_image and self.use_pseudo_image)
+        if not split_cache_signal and not split_cache_image:
+            return
+
+        cache_dtype = self._cache_dtype_np()
+        n = len(self.indices)
+        c = len(self.channels)
+        h, w = self.image_size
+        ch = int(self.image_out_channels)
+
+        if split_cache_signal:
+            self._cached_signal = np.empty((n, c, self.window_len), dtype=cache_dtype)
+        if split_cache_image:
+            self._cached_image = np.empty((n, ch, h, w), dtype=cache_dtype)
+
+        for i, m in enumerate(self.indices):
+            seg = self._signals[m.path][:, m.start : m.start + m.length].copy().astype(np.float32)
+            seg = self._apply_resampling(seg)
+
+            if self._cached_signal is not None:
+                self._cached_signal[i] = seg.astype(cache_dtype, copy=False)
+            if self._cached_image is not None:
+                img = self._build_pseudo_image(seg)
+                self._cached_image[i] = img.astype(cache_dtype, copy=False)
+
+            if (not self._ram_cache_silent) and self.ram_cache_log_interval > 0 and (i + 1) % self.ram_cache_log_interval == 0:
+                print(f"[RAM CACHE] split={self.split} cached {i + 1}/{n} segments")
+
+        sig_mb = 0.0 if self._cached_signal is None else float(self._cached_signal.nbytes / (1024 ** 2))
+        img_mb = 0.0 if self._cached_image is None else float(self._cached_image.nbytes / (1024 ** 2))
+        if not self._ram_cache_silent:
+            print(
+                f"[RAM CACHE] split={self.split} done | signal_cache={'on' if self._cached_signal is not None else 'off'} "
+                f"| image_cache={'on' if self._cached_image is not None else 'off'} "
+                f"| memory={sig_mb + img_mb:.1f} MiB (sig={sig_mb:.1f}, img={img_mb:.1f})"
+            )
 
     def _discover_files(self) -> list[str]:
         patterns = self.cfg["data"].get(
@@ -338,28 +482,108 @@ class ZenodoDynamicDataset(Dataset):
         _SIGNAL_CACHE[cache_key] = (sig.astype(np.float32), self.sample_rate)
         return sig.astype(np.float32)
 
+    def _apply_resampling(self, seg: np.ndarray) -> np.ndarray:
+        if (not self.resampling_enabled) or self.resampling_mode == "none" or self.resampling_ratio <= 1:
+            return seg.astype(np.float32)
+        out = np.zeros_like(seg, dtype=np.float32)
+        for c in range(seg.shape[0]):
+            out[c] = _compress_restore_1d(
+                seg[c].astype(np.float32),
+                mode=self.resampling_mode,
+                ratio=self.resampling_ratio,
+                alpha=self.resampling_alpha,
+            )
+        return out.astype(np.float32)
+
+    def _channel_stft_map(self, x: np.ndarray) -> np.ndarray:
+        n_fft = max(8, min(int(self.stft_n_fft), int(len(x))))
+        hop = max(1, min(int(self.stft_hop_length), n_fft - 1))
+        noverlap = max(0, n_fft - hop)
+        _, _, sxx = spectrogram(
+            x.astype(np.float32),
+            fs=float(self.sample_rate),
+            window="hann",
+            nperseg=n_fft,
+            noverlap=noverlap,
+            nfft=n_fft,
+            mode="magnitude",
+            scaling="spectrum",
+        )
+        if sxx.size == 0:
+            sxx = np.zeros((8, 8), dtype=np.float32)
+        sxx = np.log1p(np.abs(sxx).astype(np.float32))
+        sxx = _normalize_map01(sxx)
+        return _resize_2d(sxx, self.image_size)
+
+    def _build_pseudo_image(self, seg: np.ndarray) -> np.ndarray:
+        if not self.use_pseudo_image:
+            h, w = self.image_size
+            return np.zeros((self.image_out_channels, h, w), dtype=np.float32)
+
+        valid_idx = [i for i in self.pseudo_image_channels if 0 <= int(i) < seg.shape[0]]
+        if not valid_idx:
+            valid_idx = list(range(min(seg.shape[0], 3)))
+        if not valid_idx:
+            h, w = self.image_size
+            return np.zeros((self.image_out_channels, h, w), dtype=np.float32)
+
+        maps: list[np.ndarray] = []
+        if self.image_mode == "five_channel":
+            base = seg[valid_idx[0]]
+            maps.append(self._channel_stft_map(base))
+            maps.append(self._channel_stft_map(np.abs(np.diff(base, prepend=base[:1]))))
+            maps.append(self._channel_stft_map(np.abs(base)))
+            maps.append(self._channel_stft_map(seg[valid_idx[min(1, len(valid_idx) - 1)]]))
+            maps.append(self._channel_stft_map(seg[valid_idx[min(2, len(valid_idx) - 1)]]))
+        else:
+            # Default: STFT pseudo-RGB maps from selected channels.
+            for idx in valid_idx[: max(3, self.image_out_channels)]:
+                maps.append(self._channel_stft_map(seg[int(idx)]))
+
+        if not maps:
+            h, w = self.image_size
+            return np.zeros((self.image_out_channels, h, w), dtype=np.float32)
+
+        while len(maps) < self.image_out_channels:
+            maps.append(maps[len(maps) % len(maps)])
+        maps = maps[: self.image_out_channels]
+        return np.stack(maps, axis=0).astype(np.float32)
+
     def __len__(self):
         return len(self.indices)
 
     def __getitem__(self, idx: int):
         m = self.indices[idx]
-        sig_full = self._signals[m.path]
-        seg = sig_full[:, m.start : m.start + m.length].copy().astype(np.float32)
+        if self._cached_signal is not None:
+            seg = self._cached_signal[idx].astype(np.float32, copy=True)
+        else:
+            sig_full = self._signals[m.path]
+            seg = sig_full[:, m.start : m.start + m.length].copy().astype(np.float32)
+            seg = self._apply_resampling(seg)
 
         force_snr = os.environ.get("FORCE_SNR")
+        force_snr_value = None
         if force_snr:
             try:
-                seg = add_awgn_numpy(seg, float(force_snr))
+                force_snr_value = float(force_snr)
+                seg = add_awgn_numpy(seg, force_snr_value)
             except ValueError:
                 pass
 
         if self.is_train:
-            seg = _augment_signal(seg, self.cfg.get("augment", {}).get("signal", {}))
+            seg = _augment_signal(seg, self.signal_aug_cfg)
 
-        h, w = self.image_size
-        img = np.zeros((3, h, w), dtype=np.float32)
+        if (not self.use_pseudo_image) and self.omit_image_tensor_when_disabled:
+            img_t = None
+        else:
+            # Important: if FORCE_SNR is set (noisy eval), image must be recomputed from noisy signal.
+            use_cached_image = (self._cached_image is not None) and (force_snr_value is None)
+            if use_cached_image:
+                img = self._cached_image[idx].astype(np.float32, copy=False)
+            else:
+                img = self._build_pseudo_image(seg)
+            img_t = torch.from_numpy(img)
 
-        img_t = torch.from_numpy(img)
         sig_t = torch.from_numpy(seg)
         lbl_t = int(m.label)
 
@@ -396,11 +620,20 @@ class ZenodoDynamicDataset(Dataset):
 def _collate(batch):
     if not batch:
         return None
+
+    def _stack_images_or_none(imgs):
+        has_none = any(x is None for x in imgs)
+        if not has_none:
+            return torch.stack(imgs)
+        if not all(x is None for x in imgs):
+            raise RuntimeError("Mixed None/non-None image tensors in one batch.")
+        return None
+
     if len(batch[0]) == 4:
         imgs, sigs, labels, tags = zip(*batch)
-        return torch.stack(imgs), torch.stack(sigs), torch.tensor(labels, dtype=torch.long), list(tags)
+        return _stack_images_or_none(imgs), torch.stack(sigs), torch.tensor(labels, dtype=torch.long), list(tags)
     imgs, sigs, labels = zip(*batch)
-    return torch.stack(imgs), torch.stack(sigs), torch.tensor(labels, dtype=torch.long)
+    return _stack_images_or_none(imgs), torch.stack(sigs), torch.tensor(labels, dtype=torch.long)
 
 
 def _iter_segment_meta(ds):
@@ -500,8 +733,14 @@ def dataset_export_manifest(ds, csv_path: str, split_name: str = "unknown"):
 
 def _make_loader(cfg: dict, split_name: str, ds):
     data_cfg = cfg["data"]
-    num_workers = int(data_cfg.get("num_workers", 4))
-    batch_size = int(data_cfg.get("batch_size", 256))
+    default_workers = int(data_cfg.get("num_workers", 4))
+    default_batch = int(data_cfg.get("batch_size", 256))
+    if split_name == "train":
+        num_workers = int(data_cfg.get("num_workers_train", default_workers))
+        batch_size = int(data_cfg.get("batch_size_train", default_batch))
+    else:
+        num_workers = int(data_cfg.get("num_workers_eval", default_workers))
+        batch_size = int(data_cfg.get("batch_size_eval", default_batch))
     prefetch_factor = int(data_cfg.get("prefetch_factor", 4))
 
     if len(ds) == 0:
@@ -573,6 +812,13 @@ def create_dataloaders(cfg: dict, return_meta: bool = False, return_datasets: bo
     if return_datasets:
         return train_loaders, val_loaders, test_loaders, train_ds, val_ds, test_ds
     return train_loaders, val_loaders, test_loaders
+
+
+def create_test_loaders_only(cfg: dict, return_meta: bool = False, test_override: list[int] | None = None):
+    data_cfg = cfg["data"]
+    test_ids = [int(x) for x in (test_override if test_override is not None else data_cfg.get("test_test_ids", []))]
+    test_ds = ZenodoDynamicDataset(cfg, split="test", return_meta=return_meta, override_test_ids=test_ids)
+    return _make_loader(cfg, "test", test_ds)
 
 
 def run_offline_preprocessing(_cfg: dict):

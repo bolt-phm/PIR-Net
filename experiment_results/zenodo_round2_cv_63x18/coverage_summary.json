@@ -1,0 +1,20 @@
+{
+  "generated_at_utc": "2026-03-29T05:29:45.402448+00:00",
+  "source_root": "E:/Desktop/GPT_Codex/2modify/huichuan",
+  "servers": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "expected_train_runs": 63,
+  "found_train_runs": 63,
+  "missing_train_runs": [],
+  "expected_generalization_runs": 18,
+  "found_generalization_runs": 18,
+  "missing_generalization_runs": [],
+  "is_train_complete": true,
+  "is_generalization_complete": true
+}

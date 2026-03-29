@@ -1,0 +1,13 @@
+{
+  "experiment": "403_fold_d15_cfg22_s3407",
+  "model": "signal_resnet1d",
+  "seed": 3407,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 66.72613737734166,
+  "macro_f1": 0.6483443380001195,
+  "weighted_f1": 0.6756285242116057,
+  "n_test_samples": 1121,
+  "decision_threshold": 0.35999999999999993,
+  "snr_db": "clean"
+}

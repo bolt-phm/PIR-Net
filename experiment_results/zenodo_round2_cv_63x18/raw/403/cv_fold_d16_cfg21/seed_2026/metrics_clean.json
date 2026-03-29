@@ -1,0 +1,13 @@
+{
+  "experiment": "403_fold_d16_cfg21_s2026",
+  "model": "signal_resnet1d",
+  "seed": 2026,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 92.38263950398583,
+  "macro_f1": 0.9152579946934786,
+  "weighted_f1": 0.9258312575164485,
+  "n_test_samples": 1129,
+  "decision_threshold": 0.5299999999999999,
+  "snr_db": "clean"
+}

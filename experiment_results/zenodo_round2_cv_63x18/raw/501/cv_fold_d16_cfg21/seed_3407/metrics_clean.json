@@ -1,0 +1,13 @@
+{
+  "experiment": "501_fold_d16_cfg21_s3407",
+  "model": "pirnet_dual_branch",
+  "seed": 3407,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 79.36226749335695,
+  "macro_f1": 0.7856300580955198,
+  "weighted_f1": 0.8018719354315565,
+  "n_test_samples": 1129,
+  "decision_threshold": 0.9299999999999999,
+  "snr_db": "clean"
+}

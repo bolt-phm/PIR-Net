@@ -1,0 +1,13 @@
+{
+  "experiment": "404_fold_d17_cfg21_s4096",
+  "model": "signal_cnn_bilstm_attn",
+  "seed": 4096,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 92.61565836298932,
+  "macro_f1": 0.9174517387499547,
+  "weighted_f1": 0.9281360415067011,
+  "n_test_samples": 1124,
+  "decision_threshold": 0.8599999999999999,
+  "snr_db": "clean"
+}

@@ -1,0 +1,13 @@
+{
+  "experiment": "401_fold_d16_cfg21_s3407",
+  "model": "signal_wdcnn",
+  "seed": 3407,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 98.75996457041629,
+  "macro_f1": 0.9851697141656157,
+  "weighted_f1": 0.9875252057883214,
+  "n_test_samples": 1129,
+  "decision_threshold": 0.7699999999999999,
+  "snr_db": "clean"
+}

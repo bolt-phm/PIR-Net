@@ -18,6 +18,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .tmp/
+random_site_qr_*.png
 
 # GUI build artifacts
 BoltDetectionGUI/src/bin/

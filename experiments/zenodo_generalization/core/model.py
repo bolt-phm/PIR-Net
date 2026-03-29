@@ -119,7 +119,16 @@ class ResNet1D(nn.Module):
 
 
 class SignalTransformer1D(nn.Module):
-    def __init__(self, in_channels: int, num_classes: int, seq_len: int, d_model: int = 128, nhead: int = 8, num_layers: int = 4, dropout: float = 0.1):
+    def __init__(
+        self,
+        in_channels: int,
+        num_classes: int,
+        seq_len: int,
+        d_model: int = 128,
+        nhead: int = 8,
+        num_layers: int = 4,
+        dropout: float = 0.1,
+    ):
         super().__init__()
         self.patch = nn.Conv1d(in_channels, d_model, kernel_size=16, stride=16, padding=0)
         tokens = max(1, seq_len // 16)
@@ -166,13 +175,165 @@ class CNNBiLSTMAttn1D(nn.Module):
         self.head = nn.Sequential(nn.Dropout(dropout), nn.Linear(256, num_classes))
 
     def forward(self, _img, sig):
-        x = self.frontend(sig)  # [B, C, T]
-        x = x.transpose(1, 2)  # [B, T, C]
-        x, _ = self.rnn(x)  # [B, T, 2H]
-        w = self.attn(x).squeeze(-1)  # [B, T]
+        x = self.frontend(sig)
+        x = x.transpose(1, 2)
+        x, _ = self.rnn(x)
+        w = self.attn(x).squeeze(-1)
         w = torch.softmax(w, dim=1).unsqueeze(-1)
-        x = torch.sum(x * w, dim=1)  # [B, 2H]
+        x = torch.sum(x * w, dim=1)
         return self.head(x)
+
+
+class PIRImageEncoder(nn.Module):
+    def __init__(self, in_channels: int, embed_dim: int):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(in_channels, 32, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d((1, 1)),
+        )
+        self.proj = nn.Linear(128, embed_dim)
+
+    def forward(self, x):
+        x = self.net(x).flatten(1)
+        return self.proj(x)
+
+
+class PIRSignalEncoder(nn.Module):
+    def __init__(self, in_channels: int, embed_dim: int, backbone: str = "hybrid", dropout: float = 0.2):
+        super().__init__()
+        self.backbone = str(backbone).lower()
+        hidden = max(64, embed_dim)
+        self.frontend = nn.Sequential(
+            nn.Conv1d(in_channels, 64, kernel_size=9, stride=1, padding=4, bias=False),
+            nn.BatchNorm1d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(2),
+            nn.Conv1d(64, hidden, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.BatchNorm1d(hidden),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(2),
+        )
+        self.lstm = nn.LSTM(
+            input_size=hidden,
+            hidden_size=hidden // 2,
+            num_layers=1,
+            batch_first=True,
+            bidirectional=True,
+        )
+        tr_layer = nn.TransformerEncoderLayer(
+            d_model=hidden,
+            nhead=max(1, min(8, hidden // 32)),
+            dim_feedforward=hidden * 2,
+            dropout=dropout,
+            batch_first=True,
+        )
+        self.transformer = nn.TransformerEncoder(tr_layer, num_layers=1)
+        self.norm = nn.LayerNorm(hidden)
+        self.proj = nn.Linear(hidden, embed_dim)
+
+    def forward(self, sig):
+        x = self.frontend(sig)
+        if self.backbone == "cnn":
+            pooled = x.mean(dim=-1)
+            return self.proj(pooled)
+
+        x = x.transpose(1, 2)
+        x, _ = self.lstm(x)
+        if self.backbone == "hybrid":
+            x = self.transformer(x)
+        x = self.norm(x)
+        pooled = x.mean(dim=1)
+        return self.proj(pooled)
+
+
+class PIRNetDualBranch(nn.Module):
+    def __init__(
+        self,
+        sig_in_channels: int,
+        img_in_channels: int,
+        num_classes: int,
+        embed_dim: int = 192,
+        dropout: float = 0.3,
+        fusion_mode: str = "cross_attention",
+        branch_mode: str = "dual",
+        signal_backbone: str = "hybrid",
+        attn_heads: int = 4,
+    ):
+        super().__init__()
+        self.branch_mode = str(branch_mode).lower()
+        self.fusion_mode = str(fusion_mode).lower()
+
+        self.use_image = self.branch_mode in {"dual", "image_only"}
+        self.use_signal = self.branch_mode in {"dual", "signal_only"}
+        if not (self.use_image or self.use_signal):
+            raise ValueError(f"Invalid branch_mode={self.branch_mode}")
+
+        if self.use_image:
+            self.image_encoder = PIRImageEncoder(in_channels=img_in_channels, embed_dim=embed_dim)
+        if self.use_signal:
+            self.signal_encoder = PIRSignalEncoder(
+                in_channels=sig_in_channels,
+                embed_dim=embed_dim,
+                backbone=signal_backbone,
+                dropout=dropout,
+            )
+
+        self.dropout = nn.Dropout(dropout)
+        if self.use_image and self.use_signal and self.fusion_mode == "cross_attention":
+            self.fusion_attn = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=max(1, int(attn_heads)), batch_first=True)
+            self.fusion_norm = nn.LayerNorm(embed_dim)
+        elif self.use_image and self.use_signal and self.fusion_mode == "simple_attention":
+            self.fusion_gate = nn.Linear(embed_dim * 2, 2)
+
+        if self.use_image and self.use_signal and self.fusion_mode == "concat":
+            cls_in = embed_dim * 2
+            self.concat_proj = nn.Sequential(
+                nn.Linear(cls_in, embed_dim),
+                nn.ReLU(inplace=True),
+                nn.Dropout(dropout),
+                nn.Linear(embed_dim, embed_dim),
+                nn.ReLU(inplace=True),
+            )
+            cls_in = embed_dim
+        else:
+            cls_in = embed_dim
+        self.classifier = nn.Linear(cls_in, num_classes)
+
+    def _fuse(self, img_emb: torch.Tensor | None, sig_emb: torch.Tensor | None) -> torch.Tensor:
+        if img_emb is None and sig_emb is None:
+            raise RuntimeError("Both embeddings are None.")
+        if img_emb is None:
+            return sig_emb
+        if sig_emb is None:
+            return img_emb
+
+        if self.fusion_mode == "cross_attention":
+            tokens = torch.stack([img_emb, sig_emb], dim=1)
+            out, _ = self.fusion_attn(tokens, tokens, tokens, need_weights=False)
+            return self.fusion_norm(out.mean(dim=1))
+        if self.fusion_mode == "simple_attention":
+            gate = torch.softmax(self.fusion_gate(torch.cat([img_emb, sig_emb], dim=-1)), dim=-1)
+            return gate[:, 0:1] * img_emb + gate[:, 1:2] * sig_emb
+        if self.fusion_mode == "concat":
+            return self.concat_proj(torch.cat([img_emb, sig_emb], dim=-1))
+        return 0.5 * (img_emb + sig_emb)
+
+    def forward(self, img, sig):
+        img_emb = self.image_encoder(img) if self.use_image else None
+        sig_emb = self.signal_encoder(sig) if self.use_signal else None
+        fused = self._fuse(img_emb, sig_emb)
+        fused = self.dropout(fused)
+        return self.classifier(fused)
 
 
 def build_model(cfg: dict) -> nn.Module:
@@ -192,6 +353,24 @@ def build_model(cfg: dict) -> nn.Module:
         return SignalTransformer1D(in_channels=in_channels, num_classes=num_classes, seq_len=seq_len)
     if name == "signal_cnn_bilstm_attn":
         return CNNBiLSTMAttn1D(in_channels=in_channels, num_classes=num_classes, dropout=dropout)
+    if name in {"pirnet_dual_branch", "pirnet", "pirnet_lite"}:
+        image_in_channels = int(cfg["data"].get("image_out_channels", 3))
+        embed_dim = int(cfg.get("model", {}).get("embed_dim", 192))
+        fusion_mode = str(cfg.get("model", {}).get("fusion_mode", "cross_attention"))
+        branch_mode = str(cfg.get("model", {}).get("branch_mode", "dual"))
+        signal_backbone = str(cfg.get("model", {}).get("signal_backbone", "hybrid"))
+        attn_heads = int(cfg.get("model", {}).get("attn_heads", 4))
+        return PIRNetDualBranch(
+            sig_in_channels=in_channels,
+            img_in_channels=image_in_channels,
+            num_classes=num_classes,
+            embed_dim=embed_dim,
+            dropout=dropout,
+            fusion_mode=fusion_mode,
+            branch_mode=branch_mode,
+            signal_backbone=signal_backbone,
+            attn_heads=attn_heads,
+        )
 
     raise ValueError(f"Unknown model.name: {name}")
 

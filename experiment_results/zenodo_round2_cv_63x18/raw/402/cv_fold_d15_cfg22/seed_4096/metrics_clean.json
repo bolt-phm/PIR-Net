@@ -1,0 +1,13 @@
+{
+  "experiment": "402_fold_d15_cfg22_s4096",
+  "model": "signal_inceptiontime",
+  "seed": 4096,
+  "window_seconds": 4.0,
+  "stride_seconds": 1.0,
+  "accuracy_pct": 66.63693131132918,
+  "macro_f1": 0.4049691168789881,
+  "weighted_f1": 0.536900575274498,
+  "n_test_samples": 1121,
+  "decision_threshold": 0.5199999999999999,
+  "snr_db": "clean"
+}
