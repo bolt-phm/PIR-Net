@@ -1,4 +1,4 @@
-# Contributing to PIR-Net
+# Contributing to PGRF-Net
 
 Thank you for your interest in contributing to this project.
 

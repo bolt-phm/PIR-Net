@@ -4,7 +4,7 @@ This folder provides structured, open-source-ready result bundles aligned with t
 
 ## Scope
 
-- PIR-Net ablation experiments: 022, 122, 202, 212, 220, 221, 222
+- PGRF-Net ablation experiments: 022, 122, 202, 212, 220, 221, 222
 - External baselines: 301, 302, 303, 304, 305, 306, 307
 - Zenodo cross-condition benchmarks: 401, 402, 403, 404
 - Round-2 supplementary Zenodo package: 401, 402, 403, 404, 501, 502, 503

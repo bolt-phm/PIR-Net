@@ -13,7 +13,7 @@ This directory provides the standalone public-dataset benchmark used in revision
 2. `402`: InceptionTime-like
 3. `403`: ResNet1D
 4. `404`: CNN-BiLSTM-Attention
-5. `501`: PIRNet/PGRF pipeline (physics-guided downsampling)
+5. `501`: PGRF-Net pipeline (physics-guided downsampling)
 6. `502`: Average-downsample control (A)
 7. `503`: Decimate-based feature pipeline (C)
 

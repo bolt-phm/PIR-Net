@@ -1,1 +1,1 @@
-"""Utility package for PIR-Net tooling."""
+"""Utility package for PGRF-Net tooling."""

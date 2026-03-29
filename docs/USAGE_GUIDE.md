@@ -1,4 +1,4 @@
-# PIR-Net Usage Guide
+# PGRF-Net Usage Guide
 
 This document provides standardized setup and execution instructions for all experiments in this repository.
 
@@ -47,7 +47,7 @@ Optional:
 python tools/update_data_dir.py --root . --data_dir /absolute/path/to/inhouse_data --generalization_dir /absolute/path/to/extra_generalization_data
 ```
 
-## 4. PIR-Net Ablation (`022`-`222`)
+## 4. PGRF-Net Ablation (`022`-`222`)
 
 Example (`Exp 222`):
 

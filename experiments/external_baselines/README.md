@@ -1,6 +1,6 @@
 # External Baseline Suite (`301`-`307`)
 
-This directory contains self-contained external baseline implementations used for standardized comparison against PIR-Net.
+This directory contains self-contained external baseline implementations used for standardized comparison against PGRF-Net.
 
 ## 1. Baseline Inventory
 

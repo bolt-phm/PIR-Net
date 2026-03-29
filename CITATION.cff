@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it via this metadata."
-title: "PIR-Net: Physics-informed deep learning for bolt loosening detection"
+title: "PGRF-Net: Physics-informed deep learning for bolt loosening detection"
 type: software
 authors:
   - family-names: "Shi"

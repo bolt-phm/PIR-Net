@@ -16,7 +16,7 @@
         "221",
         "222"
       ],
-      "description": "PIR-Net ablation and main-model settings"
+      "description": "PGRF-Net ablation and main-model settings"
     },
     "external_baselines": {
       "ids": [

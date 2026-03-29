@@ -114,7 +114,7 @@ def build_bundle(root: Path) -> None:
     source_fig = root / "paper_support" / "py" / "ppt_images"
     index: list[dict] = []
 
-    # PIR-Net experiments
+    # PGRF-Net experiments
     for exp_id in PIRNET_IDS:
         exp_src = root / "experiments" / "pirnet_ablation" / exp_id
         exp_dst = out / "pirnet_ablation" / exp_id
@@ -196,7 +196,7 @@ def build_bundle(root: Path) -> None:
             "Export from runtime logs if full traceability is required.",
         )
 
-    # PIR-Net aggregate artifacts
+    # PGRF-Net aggregate artifacts
     agg_dst = out / "pirnet_ablation" / "aggregate"
     for name in PIRNET_AGGREGATE_FILES:
         src = source_fig / name
@@ -242,7 +242,7 @@ def build_bundle(root: Path) -> None:
                 "weighted_f1": None,
                 "val_loss": None,
             },
-            "notes": "Fill with baseline run metrics using the same reporting schema as PIR-Net.",
+            "notes": "Fill with baseline run metrics using the same reporting schema as PGRF-Net.",
         }
         write_json(metrics_template_path, metrics_template)
         add_generated(
@@ -359,7 +359,7 @@ def build_bundle(root: Path) -> None:
         "experiment_groups": {
             "pirnet_ablation": {
                 "ids": PIRNET_IDS,
-                "description": "PIR-Net ablation and main-model settings",
+                "description": "PGRF-Net ablation and main-model settings",
             },
             "external_baselines": {
                 "ids": BASELINE_IDS,
@@ -419,7 +419,7 @@ This folder provides a structured, open-source-ready result bundle aligned with 
 
 ## Scope
 
-- PIR-Net ablation experiments: {', '.join(PIRNET_IDS)}
+- PGRF-Net ablation experiments: {', '.join(PIRNET_IDS)}
 - External baselines: {', '.join(BASELINE_IDS)}
 - Zenodo cross-condition benchmarks: {', '.join(ZENODO_IDS)}
 

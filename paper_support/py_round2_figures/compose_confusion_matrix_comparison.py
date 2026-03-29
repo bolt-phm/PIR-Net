@@ -61,7 +61,7 @@ def main():
     axes[0].set_title("Baseline (Exp 022)  |  Test Split (Clean)")
     axes[0].axis("off")
     axes[1].imshow(im1)
-    axes[1].set_title("PIR-Net (Exp 222)  |  Test Split (Clean)")
+    axes[1].set_title("PGRF-Net (Exp 222)  |  Test Split (Clean)")
     axes[1].axis("off")
     fig.tight_layout()
     fig.savefig(out)
@@ -72,4 +72,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

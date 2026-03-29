@@ -49,7 +49,7 @@ def draw_resampling_highlight():
     ax1.set_title("痛点：传统方法导致高频特征丢失", fontsize=14, fontweight='bold')
     ax1.legend(loc='upper right')
     
-    # PIR-Net 方法成功的展示
+# PGRF-Net 方法成功的展示
     smart_y = []
     smart_x = t[::20]
     for i in range(0, len(signal), 20):
@@ -68,7 +68,7 @@ def draw_resampling_highlight():
 
 # 2. 成果展示：SOTA 对比柱状图
 def draw_sota_bar():
-    methods = ['RF', 'XGBoost', 'CNN-LSTM', 'ResNet-101', 'PIR-Net (Ours)']
+    methods = ['RF', 'XGBoost', 'CNN-LSTM', 'ResNet-101', 'PGRF-Net (Ours)']
     acc = [67.32, 71.85, 83.27, 88.92, 96.04]
     
     fig, ax = plt.subplots(figsize=(10, 5))

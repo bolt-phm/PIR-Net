@@ -353,7 +353,7 @@ def build_model(cfg: dict) -> nn.Module:
         return SignalTransformer1D(in_channels=in_channels, num_classes=num_classes, seq_len=seq_len)
     if name == "signal_cnn_bilstm_attn":
         return CNNBiLSTMAttn1D(in_channels=in_channels, num_classes=num_classes, dropout=dropout)
-    if name in {"pirnet_dual_branch", "pirnet", "pirnet_lite"}:
+    if name in {"pirnet_dual_branch", "pirnet", "pirnet_lite", "pgrf_dual_branch", "pgrfnet", "pgrf-net"}:
         image_in_channels = int(cfg["data"].get("image_out_channels", 3))
         embed_dim = int(cfg.get("model", {}).get("embed_dim", 192))
         fusion_mode = str(cfg.get("model", {}).get("fusion_mode", "cross_attention"))
@@ -373,4 +373,3 @@ def build_model(cfg: dict) -> nn.Module:
         )
 
     raise ValueError(f"Unknown model.name: {name}")
-

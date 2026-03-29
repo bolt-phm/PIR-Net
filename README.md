@@ -1,12 +1,12 @@
-# PIRNet Open Source
+# PGRF-Net Open Source
 
-PIRNet (manuscript name: **PGRF-Net**) is a physics-guided deep learning framework for bolt-loosening diagnosis from ultra-high-frequency (1 MHz) vibration signals.
+PGRF-Net is a physics-guided deep learning framework for bolt-loosening diagnosis from ultra-high-frequency (1 MHz) vibration signals.
 
 ## Overview
 
 This repository provides a complete and reproducible project package, including:
 
-1. PIRNet ablation experiments (`022`-`222`).
+1. PGRF-Net ablation experiments (`022`-`222`).
 2. External baseline experiments (`301`-`307`) under a unified non-PIR protocol.
 3. Public-dataset cross-condition generalization experiments (`401`-`404`, Zenodo baseline controls).
 4. Feature-engineering controls on Zenodo (`501`-`503`) for round-2 supplementary analysis.
@@ -40,7 +40,7 @@ PIRNet_OpenSource_Root/
 
 ## Data Provenance
 
-`data.zip` is the in-house dataset used for PIR-Net development.
+`data.zip` is the in-house dataset used for PGRF-Net development.
 
 1. Source: self-collected impact-vibration measurements from an FPGA-based acquisition setup.
 2. Sampling rate: 1 MHz.
@@ -78,7 +78,7 @@ python tools/update_data_dir.py --root . --data_dir /absolute/path/to/your/data 
 
 ## Quick Start
 
-PIR-Net (`Exp 222`):
+PGRF-Net (`Exp 222`):
 
 ```bash
 cd experiments/pirnet_ablation/222

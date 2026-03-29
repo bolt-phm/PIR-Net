@@ -225,16 +225,16 @@ def plot_scene_5_performance():
     
     # 左图：准确率对比
     ax1 = fig.add_subplot(gs[0])
-    models = ['RF', '1D-CNN', 'ResNet50', 'PIR-Net (Ours)']
+    models = ['RF', '1D-CNN', 'ResNet50', 'PGRF-Net (Ours)']
     acc = [67.32, 78.43, 85.67, 95.00]
-    colors = ['gray', 'gray', 'gray', '#d62728'] # 突出 PIR-Net
+    colors = ['gray', 'gray', 'gray', '#d62728'] # 突出 PGRF-Net
     
     bars = ax1.barh(models, acc, color=colors)
     ax1.set_xlim(50, 100)
     ax1.set_xlabel("Accuracy (%)")
     ax1.set_title("Overall Accuracy Comparison")
     
-    # 给PIR-Net加标签
+    # 给PGRF-Net加标签
     for i, bar in enumerate(bars):
         width = bar.get_width()
         font_weight = 'bold' if i == 3 else 'normal'
@@ -257,7 +257,7 @@ def plot_scene_5_performance():
     
     sns.heatmap(cm, annot=True, fmt=".2f", cmap="Blues", ax=ax2, 
                 xticklabels=classes, yticklabels=classes, cbar=False)
-    ax2.set_title("Confusion Matrix (PIR-Net)")
+    ax2.set_title("Confusion Matrix (PGRF-Net)")
     ax2.set_xlabel("Predicted")
     ax2.set_ylabel("True Label")
     

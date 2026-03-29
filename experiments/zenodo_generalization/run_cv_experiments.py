@@ -30,7 +30,7 @@ def _safe_group(ids, allowed):
 def _model_needs_image(cfg: dict) -> bool:
     model_cfg = cfg.get("model", {})
     model_name = str(model_cfg.get("name", "")).lower()
-    if model_name in {"pirnet_dual_branch", "pirnet", "pirnet_lite"}:
+    if model_name in {"pirnet_dual_branch", "pirnet", "pirnet_lite", "pgrf_dual_branch", "pgrfnet", "pgrf-net"}:
         branch_mode = str(model_cfg.get("branch_mode", "dual")).lower()
         return branch_mode in {"dual", "image_only"}
     return False

@@ -22,4 +22,4 @@ This project is committed to maintaining a respectful, inclusive, and technicall
 For conduct concerns, contact:
 
 - Email: `2483839342@qq.com`
-- Subject: `[PIR-Net Conduct] <short summary>`
+- Subject: `[PGRF-Net Conduct] <short summary>`

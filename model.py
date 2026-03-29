@@ -385,7 +385,7 @@ def build_model(config):
     model_cfg = config.get("model", {}) if isinstance(config, dict) else {}
     name = str(model_cfg.get("name", "multimodal")).strip().lower()
 
-    if name in ("", "multimodal", "pir-net", "pirnet", "222"):
+    if name in ("", "multimodal", "pir-net", "pirnet", "pgrf-net", "pgrfnet", "222"):
         return MultiModalNet(config)
     if name == "signal_wdcnn":
         return WDCNNSignalNet(config)

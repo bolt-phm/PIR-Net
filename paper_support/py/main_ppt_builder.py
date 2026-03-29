@@ -25,7 +25,7 @@ def create_missing_img_placeholder(filename, text_hint):
     plt.close(fig)
     return path
 
-class PIRNetPPTBuilder:
+class PGRFNetPPTBuilder:
     def __init__(self):
         self.prs = Presentation()
         # 16:9 宽屏
@@ -105,7 +105,7 @@ class PIRNetPPTBuilder:
         slide = self.prs.slides.add_slide(self.prs.slide_layouts[0])
         title = slide.shapes.title
         subtitle = slide.placeholders[1]
-        title.text = "PIR-Net: 面向超高频螺栓松动检测的\n物理感知重采样与非对称融合网络"
+        title.text = "PGRF-Net: 面向超高频螺栓松动检测的\n物理感知重采样与非对称融合网络"
         subtitle.text = "解决 1MHz 高频采样下的“效率与特征保留”矛盾\n\n汇报人：XXX"
         title.text_frame.paragraphs[0].font.name = "微软雅黑"
         title.text_frame.paragraphs[0].font.bold = True
@@ -127,9 +127,9 @@ class PIRNetPPTBuilder:
             "此处展示：线性降采样导致冲击丢失 vs PIR保留冲击"
         )
 
-        # --- Slide 2: PIR-Net 解决方案总览 ---
+        # --- Slide 2: PGRF-Net 解决方案总览 ---
         self.add_slide(
-            "PIR-Net 整体架构设计",
+            "PGRF-Net 整体架构设计",
             [
                 "设计理念：物理感知 (Physics-Informed) + 非对称融合。",
                 "核心组件 (2-2-2 架构)：",
@@ -267,7 +267,7 @@ class PIRNetPPTBuilder:
             "结论与展望",
             [
                 "总结：",
-                "PIR-Net 成功解决了超高频 PHM 的效率瓶颈。",
+                "PGRF-Net 成功解决了超高频 PHM 的效率瓶颈。",
                 "提出了“物理感知重采样”与“非对称融合”新范式。",
                 "核心贡献：",
                 "1. 实现了 150:1 的高保真数据压缩。",
@@ -279,11 +279,11 @@ class PIRNetPPTBuilder:
             layout="center"
         )
 
-        output_file = "PIR_Net_汇报胶片_CN.pptx"
+        output_file = "PGRF_Net_汇报胶片_CN.pptx"
         self.prs.save(output_file)
         print(f"PPT 生成成功！文件名为: {output_file}")
         print("请打开 PPT，将带有红色边框的占位图替换为您的论文原图。")
 
 if __name__ == "__main__":
-    builder = PIRNetPPTBuilder()
+    builder = PGRFNetPPTBuilder()
     builder.build()

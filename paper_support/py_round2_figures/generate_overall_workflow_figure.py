@@ -98,7 +98,7 @@ def draw_overall_workflow(out_dir: Path) -> tuple[Path, Path]:
     ax.text(
         0.5,
         0.92,
-        "Overall Workflow of PIR-Net for Bolt-Loosening Detection",
+        "Overall Workflow of PGRF-Net for Bolt-Loosening Detection",
         ha="center",
         va="center",
         fontsize=16,

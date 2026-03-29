@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lightweight smoke checks for PIR-Net repository health."""
+"""Lightweight smoke checks for PGRF-Net repository health."""
 
 from __future__ import annotations
 
@@ -59,14 +59,14 @@ def run_config_dry_run(exp_dir: Path) -> None:
         if key not in cfg["train"]:
             raise KeyError(f"Missing train.{key} in config")
 
-    with tempfile.TemporaryDirectory(prefix="pirnet_smoke_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="pgrfnet_smoke_") as tmp:
         tmp_cfg = Path(tmp) / "config.json"
         shutil.copy2(cfg_path, tmp_cfg)
 
         changed = update_config(
             path=tmp_cfg,
-            data_dir="/tmp/pirnet_data",
-            generalization_dir="/tmp/pirnet_generalization",
+            data_dir="/tmp/pgrfnet_data",
+            generalization_dir="/tmp/pgrfnet_generalization",
         )
         if not changed:
             raise RuntimeError("Dry-run update expected to change config but no change occurred")
@@ -74,9 +74,9 @@ def run_config_dry_run(exp_dir: Path) -> None:
         with tmp_cfg.open("r", encoding="utf-8") as f:
             updated = json.load(f)
 
-        if updated["data"].get("data_dir") != "/tmp/pirnet_data":
+        if updated["data"].get("data_dir") != "/tmp/pgrfnet_data":
             raise RuntimeError("Dry-run update failed to apply data_dir")
-        if updated["data"].get("generalization_dir") != "/tmp/pirnet_generalization":
+        if updated["data"].get("generalization_dir") != "/tmp/pgrfnet_generalization":
             raise RuntimeError("Dry-run update failed to apply generalization_dir")
 
     print(f"[OK] config dry-run ({cfg_path})")

@@ -12,7 +12,7 @@
 Please report security issues privately by email:
 
 - Contact: `2483839342@qq.com`
-- Subject: `[PIR-Net Security] <short title>`
+- Subject: `[PGRF-Net Security] <short title>`
 
 Please include:
 

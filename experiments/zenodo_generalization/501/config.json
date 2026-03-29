@@ -3,7 +3,7 @@
     "name": "Zenodo15516419DamageGeneralization",
     "version": "exp-501-pirnet-full",
     "exp_id": "501",
-    "description": "PIR-Net full setting: physics-aware resampling + pseudo-image and signal dual-branch + cross-modal attention."
+    "description": "PGRF-Net full setting: physics-aware resampling + pseudo-image and signal dual-branch + cross-modal attention."
   },
   "data": {
     "data_dir": "../data/zenodo_15516419",

@@ -1,6 +1,6 @@
 # BoltDetectionGUI (Auxiliary Validation Tool)
 
-`BoltDetectionGUI` is a Windows desktop assistant for PIR-Net validation workflows.  
+`BoltDetectionGUI` is a Windows desktop assistant for PGRF-Net validation workflows.  
 It is designed for configuration management and Python-bridge inference orchestration, not as a standalone DAQ runtime.
 
 ## 1. Contents
